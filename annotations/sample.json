@@ -1,0 +1,114 @@
+{
+  "info": {
+    "description": "CRI 2023 Hand Datasets",
+    "version": "1.0",
+    "date": "2023-01-31",
+    "organization": "Coretronic Reality Inc. AR/MR AI Technology Division"
+  },
+  "images": [
+    {
+      "image_path": "./images/person/Gid/fid.png",
+      "id": 123,
+      "frame_id": 123,
+      "camera": {
+          "id" : 0,
+          "retify" : false,
+          "width": 640,
+          "height": 400
+          }
+    }
+  ],
+  "Mask": [
+    {
+      "mask_path": "./mask/person/Gid/fid.png",
+      "id": 123,
+      "frame_id": 123
+    }
+  ],
+  "Camera": [
+    {
+      "id": 0,
+      "device": "fisheye",
+      "intrinsic": [278.08321774513394, 279.113841127447, 309.19580091877737, 207.67952497223772, 0.0],
+      "distortion": [-0.020306250909190218, 0.056496479357930875, -0.06768354885591037, 0.036626224288176815]
+    },
+    {
+      "id": 1,
+      "device": "RealSense L515",
+      "intrinsic": [278.08321774513394, 279.113841127447, 309.19580091877737, 207.67952497223772, 0.0],
+      "distortion": [-0.020306250909190218, 0.056496479357930875, -0.06768354885591037, 0.036626224288176815]
+    }
+  ],
+  "annotations": [
+    {
+      "id": 0,
+      "image_id": 123,
+      "mask_id": 123,
+      "frame_id": 1,
+      "left_hand_accessories": false,
+      "right_hand_accessories": false,
+      "left_arm_accessories": false,
+      "right_arm_accessories": false,
+      "mask_object":[
+        {
+          "category_id": 1,
+          "gesture_id": 0
+        },
+        {
+          "category_id": 2
+        },
+        {
+          "category_id": 3,
+          "gesture_id": 0
+        },
+        {
+          "category_id": 4
+        }
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "supercategory": "background",
+      "id": 0,
+      "intensity": 0,
+      "name": "background"
+    },
+    {
+      "supercategory": "Left_Hand",
+      "id": 1,
+      "intensity": 1,
+      "name": "left_hand"
+    },
+    {
+      "supercategory": "Left_arm",
+      "id": 2,
+      "intensity": 2,
+      "name": "left_arm"
+    },
+    {
+      "supercategory": "Right_Hand",
+      "id": 3,
+      "intensity": 3,
+      "name": "right_hand"
+    },
+    {
+      "supercategory": "Right_arm",
+      "id": 4,
+      "intensity": 4,
+      "name": "right_arm"
+    }
+  ],
+  "Gesture_Categories": [
+    {
+      "supercategory": "index",
+      "id": 0,
+      "name": "index"
+    },
+    {
+      "supercategory": "rock",
+      "id": 1,
+      "name": "rock"
+    }
+  ]
+}
