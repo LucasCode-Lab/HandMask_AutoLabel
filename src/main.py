@@ -2,7 +2,7 @@ from utils import logger
 import argparse
 import cv2
 import numpy as np
-from image_processing.image_processor import load_yaml_config, read_and_binarize_images, ensure_folder
+from image_processing.image_processor import load_yaml_config, read_and_binarize_images, show_images
 from gesture_analysis.hand_detect import (detect_joints,
                                           cal_angle_rotatematrix,
                                           rotate_points,
@@ -46,4 +46,9 @@ for index, (image, bin_image) in enumerate(zip(images_list, bin_image_list)):
     unit_mask = save_mask_image(arm_mask, yaml_data)
     np.save(f"{yaml_data['unit_mask_output_dir']}/{index}.npy", unit_mask)
 
+    # 產生覆蓋在原圖上的手臂 mask 圖片
+    overlay = cv2.addWeighted(image[:, :, 0], 0.4, arm_mask, 0.3, 0)
 
+    # 呈現所有處理結果
+    vis_output = show_images(image, bounding_box_image, arm_mask, overlay, binary_current_image)
+    cv2.imwrite(f"{yaml_data['merge_vis_dir']}/{index}.png", vis_output)

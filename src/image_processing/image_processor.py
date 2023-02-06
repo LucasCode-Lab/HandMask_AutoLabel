@@ -64,6 +64,9 @@ def read_and_binarize_images(yaml_data):
     # 儲存 unit_mask 結果的圖片
     unit_mask_output = yaml_data['unit_mask_output_dir']
     ensure_folder(unit_mask_output)
+    # 儲存合併視覺化結果的圖片
+    merge_vis_dir = yaml_data['merge_vis_dir']
+    ensure_folder(merge_vis_dir)
 
     # 獲取所有影像文件名稱的列表
     image_files = glob.glob(os.path.join(image_dir, "*.png")) + glob.glob(os.path.join(image_dir, "*.jpg"))
@@ -146,4 +149,39 @@ def load_yaml_config(file_path):
     return yaml_data
 
 
+def show_images(*images):
+    """
+    結合多張圖片並顯示
+
+    :param images: numpy.ndarray 要結合的多張圖片，每張圖片可以是灰階或彩色圖片
+    :returns: numpy.ndarray 結合完的圖片
+    """
+    try:
+        # 將圖片轉換為 numpy.ndarray 並強制轉換為 uint8 型態
+        image_list = [np.asarray(image, dtype=np.uint8) for image in images]
+
+        # 如果是灰階圖片，則將其轉換為彩色圖片
+        image_list = [np.dstack((image, image, image)) if len(image.shape) == 2 else image for image in image_list]
+
+        # 如果圖片數量為奇數且不止一張，則新增一張空白圖片
+        if len(image_list) % 2 != 0 and len(image_list) > 1:
+            image_list = np.concatenate((image_list, np.zeros_like(np.expand_dims(image_list[-1], axis=0))), axis=0)
+
+        if len(image_list) > 1:
+            # 將圖片數量平均分配為兩組
+            n = len(image_list) // 2
+            group1 = image_list[:n]
+            group2 = image_list[n:]
+
+            # 將同一組的圖片水平接起來
+            row1 = cv2.hconcat(group1)
+            row2 = cv2.hconcat(group2)
+
+            # 將兩組圖片垂直接起來
+            result = cv2.vconcat([row1, row2])
+            return result
+        else:
+            return image_list[0]
+    except Exception as e:
+        print(f"Error: {e}")
 
