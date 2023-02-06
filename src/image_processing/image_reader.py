@@ -18,7 +18,7 @@ def sort_by_number(filename):
 
 
 def read_images(image_dir):
-    """讀取影像目錄內的影像並存放在指定路徑
+    """讀取影像目錄內的影像，按順序更名後並存放在指定路徑
     :param image_dir: 影像目錄的路徑 (str)
     :return: images: 影像的清單 (list)
     """
@@ -41,13 +41,20 @@ def read_images(image_dir):
     for filename in image_files:
         # 判斷是否為jpg或png影像
         if filename.endswith('.jpg') or filename.endswith('.png'):
-            print(filename)
-            # 開啟影像文件
-            image = Image.open(filename)
-            # 將影像添加到列表中
-            images.append(image)
-            # 儲存讀取的影像
-            image.save(os.path.join(images_output, "%d.png" % index))
-            # 增加計數器
-            index += 1
+            try:
+                # 開啟影像文件
+                image = Image.open(filename)
+                # 將影像添加到列表中
+                images.append(image)
+                # 儲存讀取的影像
+                image.save(os.path.join(images_output, "%d.png" % index))
+                # 增加計數器
+                index += 1
+            except Exception as e:
+                print(f"發生錯誤：{e}")
     return images
+
+
+
+
+
