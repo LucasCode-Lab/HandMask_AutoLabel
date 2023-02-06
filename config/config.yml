@@ -1,3 +1,5 @@
 image_dir: "images/images/"
 output_raw_dir : "images/output_raw_images/"
 output_bin_dir : "images/output_bin_images/"
+bbox_output_dir: "images/bbox/"
+arm_mask_output_dir: "images/arm_mask_output_dir/"

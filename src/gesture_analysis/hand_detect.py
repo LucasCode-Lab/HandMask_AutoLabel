@@ -183,3 +183,49 @@ def createBoundingBox(image, joints, rotationMatrix):
     cv2.line(image, tuple(bboxCorners[2].astype(int)), tuple(bboxCorners[3].astype(int)), (0, 0, 255), 1)
 
     return image, bboxCorners
+
+
+def extract_largest_contour_mask(original_mask, rectangle):
+    """
+    Extract the largest contour from a binary mask, by subtracting the
+    area enclosed by a given rectangle.
+
+    Parameters:
+    original_mask (np.ndarray): The original binary mask.
+    rectangle (np.ndarray): A 4-point array representing the rectangle.
+
+    Returns:
+    np.ndarray: The binary mask of the largest contour.
+    """
+    # Copy the original mask to avoid modifying it in place
+    mask = original_mask.copy()
+    # Create a polygon from the rectangle
+    polygon = np.array([[int(rectangle[0][0]), int(rectangle[0][1])], [int(rectangle[1][0]), int(rectangle[1][1])],
+                        [int(rectangle[3][0]), int(rectangle[3][1])], [int(rectangle[2][0]), int(rectangle[2][1])]],
+                       np.int32)
+
+    # Fill the polygon with black color in the mask
+    cv2.fillPoly(mask, pts=[polygon], color=(0, 0, 0))
+
+    # Find all contours in the mask
+    contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+    # Return the original mask if no contours are found
+    if not contours:
+        return original_mask
+
+    # Select the contour with the largest area
+    largest_contour = max(contours, key=cv2.contourArea)
+
+    # Create a binary mask for the largest contour
+    largest_mask1 = np.zeros_like(original_mask)
+    largest_mask2 = np.zeros_like(original_mask)
+
+    cv2.fillPoly(largest_mask1, [largest_contour], (255, 255, 255))
+    cv2.fillPoly(largest_mask2, [largest_contour], (127, 127, 127))
+
+    # Subtract the largest contour from the original mask
+    result1 = original_mask - largest_mask1
+    result2 = result1 + largest_mask2
+
+    return result2

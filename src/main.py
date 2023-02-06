@@ -2,11 +2,12 @@ from utils import logger
 import argparse
 import cv2
 import numpy as np
-from image_processing.image_processor import load_yaml_config, read_and_binarize_images
+from image_processing.image_processor import load_yaml_config, read_and_binarize_images, ensure_folder
 from gesture_analysis.hand_detect import (detect_joints,
                                           cal_angle_rotatematrix,
                                           rotate_points,
-                                          createBoundingBox)
+                                          createBoundingBox,
+                                          extract_largest_contour_mask)
 
 parser = argparse.ArgumentParser(description='Process yaml config file path.')
 # 加入命令列參數 --config，並設定目標變數名稱為 config_path
@@ -33,4 +34,10 @@ for index, (image, bin_image) in enumerate(zip(images_list, bin_image_list)):
     rotated_joints = rotate_points(joints, rotate_matrix)
     # 創建手部邊界框
     bounding_box_image, bounding_rect = createBoundingBox(joint_detected_image, rotated_joints, rotate_matrix)
-    print(bounding_box_image)
+    # 儲存 bbox 結果的圖片
+    cv2.imwrite(f"{yaml_data['bbox_output_dir']}/{index}.png", bounding_box_image)
+
+    # 處理手臂遮罩
+    binary_current_image = np.copy(bin_image)
+    arm_mask = extract_largest_contour_mask(binary_current_image, bounding_rect)
+    cv2.imwrite(f"{yaml_data['arm_mask_output_dir']}/{index}.png", arm_mask)
