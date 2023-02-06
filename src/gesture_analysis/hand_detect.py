@@ -93,3 +93,32 @@ def cal_angle_rotatematrix(image, points):
     rotate_matrix_res = rotate_matrix(angle_rad)
 
     return rotate_matrix_res
+
+
+def rotate_points(points, rotate_matrix):
+    """
+    對指節點做旋轉
+
+    Parameters:
+        points (List[Tuple[int, int]]): 要旋轉的指節點坐標列表
+        rotate_matrix (np.ndarray): 旋轉矩陣
+
+    Returns:
+        List[Tuple[int, int]]: 旋轉後的指節點坐標列表
+    """
+    # 計算第0個指節點的坐標
+    base_point = points[0]
+
+    # 遍歷其他指節點
+    new_points = [base_point]
+    for point in points[1:]:
+        # 計算向量
+        b1 = point[0] - base_point[0]
+        b2 = point[1] - base_point[1]
+
+        # 旋轉向量，加上基準點坐標計算新的指節點坐標
+        new_point = np.dot(rotate_matrix, [b1, b2])
+        new_point = (new_point[0] + base_point[0], new_point[1] + base_point[1])
+        new_points.append(new_point)
+
+    return new_points
