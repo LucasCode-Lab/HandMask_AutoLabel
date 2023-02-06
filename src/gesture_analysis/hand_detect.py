@@ -229,3 +229,25 @@ def extract_largest_contour_mask(original_mask, rectangle):
     result2 = result1 + largest_mask2
 
     return result2
+
+
+def save_mask_image(mask_image, yaml_data):
+    """
+    Map the values in the input mask image based on the hand type specified in the annotation data.
+    :param mask_image: Input mask image.
+    :param yaml_data: Dictionary containing the annotation data in YAML format. The structure of the dictionary
+                      should follow the format specified in the YAML file.
+    :return: Mapped mask image.
+    """
+    # Get the hand type from the annotation data
+    hand_type = yaml_data["Annotation"]["HandType"]
+    # Map the values of the mask based on the hand type
+    mapping = {1: {225: 1, 127: 2}, 3: {255: 3, 127: 4}}[hand_type]
+    # Create an array with the same size as the input mask image and fill it with zeros
+    unit_mask = np.zeros_like(mask_image)
+    # Iterate over the values and mapped values in the mapping dictionary
+    for value, mapped_value in mapping.items():
+        # Replace the values in the unit mask that match the current value in the mapping dictionary
+        unit_mask[mask_image == value] = mapped_value
+    # Return the resulting unit mask
+    return unit_mask

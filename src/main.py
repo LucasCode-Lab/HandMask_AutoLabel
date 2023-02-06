@@ -7,7 +7,8 @@ from gesture_analysis.hand_detect import (detect_joints,
                                           cal_angle_rotatematrix,
                                           rotate_points,
                                           createBoundingBox,
-                                          extract_largest_contour_mask)
+                                          extract_largest_contour_mask,
+                                          save_mask_image)
 
 parser = argparse.ArgumentParser(description='Process yaml config file path.')
 # 加入命令列參數 --config，並設定目標變數名稱為 config_path
@@ -41,3 +42,8 @@ for index, (image, bin_image) in enumerate(zip(images_list, bin_image_list)):
     binary_current_image = np.copy(bin_image)
     arm_mask = extract_largest_contour_mask(binary_current_image, bounding_rect)
     cv2.imwrite(f"{yaml_data['arm_mask_output_dir']}/{index}.png", arm_mask)
+
+    unit_mask = save_mask_image(arm_mask, yaml_data)
+    np.save(f"{yaml_data['unit_mask_output_dir']}/{index}.npy", unit_mask)
+
+

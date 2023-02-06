@@ -61,6 +61,9 @@ def read_and_binarize_images(yaml_data):
     # 儲存 arm_mask 結果的圖片
     arm_mask_output = yaml_data['arm_mask_output_dir']
     ensure_folder(arm_mask_output)
+    # 儲存 unit_mask 結果的圖片
+    unit_mask_output = yaml_data['unit_mask_output_dir']
+    ensure_folder(unit_mask_output)
 
     # 獲取所有影像文件名稱的列表
     image_files = glob.glob(os.path.join(image_dir, "*.png")) + glob.glob(os.path.join(image_dir, "*.jpg"))
