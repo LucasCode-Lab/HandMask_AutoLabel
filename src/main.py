@@ -5,7 +5,8 @@ import numpy as np
 from image_processing.image_processor import load_yaml_config, read_and_binarize_images
 from gesture_analysis.hand_detect import (detect_joints,
                                           cal_angle_rotatematrix,
-                                          rotate_points)
+                                          rotate_points,
+                                          createBoundingBox)
 
 parser = argparse.ArgumentParser(description='Process yaml config file path.')
 # 加入命令列參數 --config，並設定目標變數名稱為 config_path
@@ -30,3 +31,6 @@ for index, (image, bin_image) in enumerate(zip(images_list, bin_image_list)):
     rotate_matrix = cal_angle_rotatematrix(joint_detected_image, joints)
     # 對關節點進行旋轉
     rotated_joints = rotate_points(joints, rotate_matrix)
+    # 創建手部邊界框
+    bounding_box_image, bounding_rect = createBoundingBox(joint_detected_image, rotated_joints, rotate_matrix)
+    print(bounding_box_image)

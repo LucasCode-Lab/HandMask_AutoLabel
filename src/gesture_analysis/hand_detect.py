@@ -122,3 +122,64 @@ def rotate_points(points, rotate_matrix):
         new_points.append(new_point)
 
     return new_points
+
+
+def drawPoints(image, points):
+    """
+    繪製點在圖像上
+
+    Parameters:
+        image (np.ndarray): 要繪製點的圖像
+        points (List[Tuple[int, int]]): 要繪製的點的坐標列表
+
+    Returns:
+        np.ndarray: 繪製完點的圖像
+    """
+    # 定義特殊點的顏色
+    color_map = {0: (0, 255, 0), 9: (0, 255, 0)}
+
+    # 遍歷所有點
+    for i, point in enumerate(points):
+        # 取出特殊點或預設顏色
+        color = color_map.get(i, (0, 255, 255))
+        # 繪製點
+        cv2.circle(image, (int(point[0]), int(point[1])), 2, color, 4)
+
+    return image
+
+
+def createBoundingBox(image, joints, rotationMatrix):
+    """
+    Draw a bounding box around the given joints and return the box corners.
+
+    Parameters:
+    image (numpy array): The input image.
+    joints (numpy array): The positions of joints.
+    rotationMatrix (numpy array): The rotation matrix.
+
+    Returns:
+    numpy array, numpy array: The input image with bounding box and the box corners.
+    """
+    image = drawPoints(image, joints)
+
+    # Calculate the maximum length between joints and the center joint
+    maxLength = np.linalg.norm(joints[9] - np.array(joints), axis=1).max()
+    # Calculate the bounding box radius
+    bboxRadius = maxLength * 1.1 + 1
+    leftUp = (int(joints[9][0] - bboxRadius), int(joints[9][1] - bboxRadius))
+    rightDown = (int(joints[9][0] + bboxRadius), int(joints[9][1] + bboxRadius))
+    # Calculate the corners of the bounding box
+    bboxCorners = np.array([
+        [leftUp[0], leftUp[1]],
+        [leftUp[0], rightDown[1]],
+        [rightDown[0], leftUp[1]],
+        [rightDown[0], rightDown[1]],
+    ]) - joints[0]
+    bboxCorners = np.dot(np.linalg.inv(rotationMatrix), bboxCorners.T).T + joints[0]
+    # Draw the bounding box on the image
+    cv2.line(image, tuple(bboxCorners[0].astype(int)), tuple(bboxCorners[1].astype(int)), (0, 0, 255), 1)
+    cv2.line(image, tuple(bboxCorners[0].astype(int)), tuple(bboxCorners[2].astype(int)), (0, 0, 255), 1)
+    cv2.line(image, tuple(bboxCorners[1].astype(int)), tuple(bboxCorners[3].astype(int)), (0, 0, 255), 1)
+    cv2.line(image, tuple(bboxCorners[2].astype(int)), tuple(bboxCorners[3].astype(int)), (0, 0, 255), 1)
+
+    return image, bboxCorners
