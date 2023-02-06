@@ -5,6 +5,7 @@ import glob
 import numpy as np
 import cv2
 import shutil
+from natsort import natsorted
 from utils import logger
 
 
@@ -185,3 +186,24 @@ def show_images(*images):
     except Exception as e:
         print(f"Error: {e}")
 
+
+def image_2_video(folder: str, size: (int, int)):
+    """
+    將圖片轉換為視頻檔案。
+
+    :param folder: 存放圖片的文件夾的路徑。
+    :param size: 視頻幀的大小。
+    :return: None
+    """
+    # 取得幀的大小
+    frameSize = size
+    # 使用指定的輸出檔案名稱、FourCC代碼、每秒幀數和幀大小創建VideoWriter物件
+    out = cv2.VideoWriter(folder + '/output_video.mp4', cv2.VideoWriter_fourcc(*'MPEG'), 10, frameSize)
+    # 取得按名稱排序的文件名列表
+    imgs = [cv2.imread(os.path.join(folder, filename)) for filename in natsorted(os.listdir(folder))]
+    # 迭代圖像
+    for img in imgs:
+        # 寫入圖像到視頻檔案
+        out.write(img)
+    # 釋放VideoWriter物件
+    out.release()

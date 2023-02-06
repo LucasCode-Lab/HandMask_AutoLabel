@@ -2,7 +2,10 @@ from utils import logger
 import argparse
 import cv2
 import numpy as np
-from image_processing.image_processor import load_yaml_config, read_and_binarize_images, show_images
+from image_processing.image_processor import(load_yaml_config,
+                                             read_and_binarize_images,
+                                             show_images,
+                                             image_2_video)
 from gesture_analysis.hand_detect import (detect_joints,
                                           cal_angle_rotatematrix,
                                           rotate_points,
@@ -52,3 +55,6 @@ for index, (image, bin_image) in enumerate(zip(images_list, bin_image_list)):
     # 呈現所有處理結果
     vis_output = show_images(image, bounding_box_image, arm_mask, overlay, binary_current_image)
     cv2.imwrite(f"{yaml_data['merge_vis_dir']}/{index}.png", vis_output)
+
+# 將每張圖片彙整成視頻
+image_2_video(f"{yaml_data['bbox_output_dir']}", (640, 400))
