@@ -1,1 +1,3 @@
 image_dir: "images/images/"
+output_raw_dir : "images/output_raw_images/"
+output_bin_dir : "images/output_bin_images/"

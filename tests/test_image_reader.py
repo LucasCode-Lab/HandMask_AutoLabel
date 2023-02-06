@@ -3,7 +3,7 @@ import numpy as np
 import unittest
 import yaml
 from PIL import Image
-from src.image_processing.image_reader import read_and_binarize_images, binarize, load_yaml_config
+from src.image_processing.image_processor import read_and_binarize_images, binarize, load_yaml_config
 
 
 class TestImageReader(unittest.TestCase):

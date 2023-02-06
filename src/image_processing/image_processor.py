@@ -20,18 +20,20 @@ def sort_by_number(filename):
     return number
 
 
-def read_and_binarize_images(image_dir):
+def read_and_binarize_images(yaml_data):
     """讀取影像目錄內的影像，按順序更名後並存放在指定路徑
     :param image_dir: 影像目錄的路徑 (str)
     :return: images: 影像的清單 (list)
     """
+    image_dir = yaml_data['image_dir']
+
     # 存儲影像的列表
     images = []
     bin_images = []
     # 輸出路徑
-    images_output = os.path.join(image_dir, 'images_output')
+    images_output = yaml_data['output_raw_dir']
     # 二值化影像的輸出路徑
-    bin_images_output = os.path.join(image_dir, 'bin_images_output')
+    bin_images_output = yaml_data['output_bin_dir']
 
     # 檢查輸出路徑是否存在，不存在則創建
     if not os.path.exists(images_output):
