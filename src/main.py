@@ -1,5 +1,6 @@
 from utils import logger
 import argparse
+import cv2
 import numpy as np
 from image_processing.image_processor import load_yaml_config, read_and_binarize_images
 from gesture_analysis.hand_detect import detect_joints
@@ -25,3 +26,5 @@ for index, (image, bin_image) in enumerate(zip(images_list, bin_image_list)):
     current_image = np.copy(image)
     # 檢測關節點，並存在 image 和 points 變量中
     joint_detected_image, joints = detect_joints(current_image)
+    # 儲存 joint 結果的圖片
+    # cv2.imwrite(f"{image_folder}/joint/{index}.png", joint_detected_image)

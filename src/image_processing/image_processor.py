@@ -3,7 +3,7 @@ import re
 import yaml
 import glob
 import numpy as np
-from PIL import Image
+import cv2
 from utils import logger
 
 
@@ -50,26 +50,22 @@ def read_and_binarize_images(yaml_data):
     image_files.sort(key=sort_by_number)
     # 計數器，用於按順序命名影像
     index = 0
-    for filename in image_files:
+    for index, filename in enumerate(image_files):
         # 判斷是否為jpg或png影像
         if filename.endswith('.jpg') or filename.endswith('.png'):
             try:
                 # 開啟影像文件
-                image = Image.open(filename)
+                image = cv2.imread(filename)
                 # 儲存讀取的影像
-                image.save(os.path.join(images_output, "%d.png" % index))
-                # PIL 轉換成 Numpy
-                image = np.asarray(image)
+                cv2.imwrite(f"{images_output}/{index}.png", image)
                 # 將影像添加到列表中
                 images.append(image)
                 # 影像二值化
                 np_bin_image = binarize(image, threshold=30)
                 # 將影像添加到列表中
                 bin_images.append(np_bin_image)
-                # Numpy 轉換成 PIL
-                bin_image = Image.fromarray(np.uint8(np_bin_image))
                 # 儲存讀取的影像
-                bin_image.save(os.path.join(bin_images_output, "%d.png" % index))
+                cv2.imwrite(f"{bin_images_output}/{index}.png", np_bin_image)
                 # 增加計數器
                 index += 1
             except Exception as e:
