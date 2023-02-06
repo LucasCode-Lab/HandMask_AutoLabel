@@ -1,10 +1,10 @@
 import os
 import re
-import cv2
+import yaml
 import glob
 import numpy as np
 from PIL import Image
-from src.utils import logger
+from utils import logger
 
 
 def sort_by_number(filename):
@@ -95,6 +95,20 @@ def binarize(image, threshold: int):
         return None
 
 
+def load_yaml_config(file_path):
+
+    """
+    讀取 yaml 配置檔
+    :param file_path: yaml 配置檔路徑
+    :return: 讀取到的 yaml 配置資料
+    """
+
+    # 檢查檔案是否存在
+    assert os.path.isfile(file_path), "Yaml File Not Exist!!"
+    # 讀取 yaml 檔案
+    with open(file_path, "r") as stream:
+        yaml_data = yaml.full_load(stream)
+    return yaml_data
 
 
 

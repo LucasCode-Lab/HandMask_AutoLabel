@@ -1,8 +1,9 @@
 import os
 import numpy as np
 import unittest
+import yaml
 from PIL import Image
-from src.image_processing.image_reader import read_and_binarize_images, binarize
+from src.image_processing.image_reader import read_and_binarize_images, binarize, load_yaml_config
 
 
 class TestImageReader(unittest.TestCase):
@@ -33,6 +34,21 @@ class TestImageReader(unittest.TestCase):
             result = binarize(image, threshold)
 
         self.assertEqual(str(context.exception), "threshold should be an integer.")
+
+    def test_load_yaml_config_success(self):
+        file_path = 'sample_config.yaml'
+        with open(file_path, 'w') as f:
+            yaml.dump({'key': 'value'}, f)
+        result = load_yaml_config(file_path)
+        expected = {'key': 'value'}
+        self.assertDictEqual(result, expected)
+        os.remove(file_path)
+
+    def test_load_yaml_config_fail(self):
+        file_path = 'nonexistent_file.yaml'
+        with self.assertRaises(AssertionError) as context:
+            load_yaml_config(file_path)
+        self.assertEqual(str(context.exception), "Yaml File Not Exist!!")
 
 
 # Run the tests if the module is run as a script
