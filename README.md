@@ -2,10 +2,10 @@
 A HandMask Autolabel Tool.
 
 
-![plot](material/image.gif)
+![plot](vis/image.gif)
 
 ## Annotation 
-[Hand_mask.json](annotation/sample.json)
+[Hand_mask.json](annotations/sample.json)
 ### Info
 | Item         | Value                    | Data_Type |
 |--------------|--------------------------|-----------|
