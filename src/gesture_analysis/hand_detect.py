@@ -1,5 +1,6 @@
 import mediapipe as mp
 import cv2
+import numpy as np
 
 mpHands = mp.solutions.hands
 hands = mpHands.Hands(static_image_mode=True, min_detection_confidence=0.1, min_tracking_confidence=0.1)
@@ -43,3 +44,52 @@ def detect_joints(image):
     cv2.circle(image, tuple(points[9]), 2, (0, 255, 0), 4)
     # 返回處理後的圖像和關節點清單
     return image, points
+
+
+def wrist_finger_vector_angle(wrist, finger):
+    """
+    計算手腕與手指的向量夾角
+
+    :param wrist: 手腕的座標 (ndarray)
+    :param finger: 手指的座標 (ndarray)
+    :return: 向量夾角的弧度值 (float)
+    """
+    # 計算手腕與手指的向量
+    wrist_finger_vector = finger - wrist
+
+    # 設定垂直向量
+    vertical_vector = np.array([0, -1])
+
+    # 計算內積並除以向量長度
+    cosine_angle = np.dot(wrist_finger_vector, vertical_vector) / (
+            np.linalg.norm(wrist_finger_vector) * np.linalg.norm(vertical_vector))
+
+    # 將cosine_angle轉換為弧度值並返回
+    angle = np.arccos(cosine_angle)
+    return angle
+
+
+def rotate_matrix(angle_rad):
+    """
+    計算旋轉矩陣
+
+    :param angle_rad: 弧度制角度值
+    :return: 旋轉矩陣
+    """
+    rotate_matrix = np.array([[np.cos(angle_rad), -np.sin(angle_rad)],
+                              [np.sin(angle_rad), np.cos(angle_rad)]])
+    return rotate_matrix
+
+
+def cal_angle_rotatematrix(image, points):
+    """
+    計算旋转矩陣
+
+    :param image: 圖片
+    :param points: 包含手指頭和腕部位置的點的列表
+    :return: 旋转矩陣
+    """
+    angle_rad = wrist_finger_vector_angle(np.array(points[0]), np.array(points[9]))
+    rotate_matrix_res = rotate_matrix(angle_rad)
+
+    return rotate_matrix_res
