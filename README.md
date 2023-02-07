@@ -134,3 +134,5 @@ A HandMask Autolabel Tool.
 >
 > 通過這樣的流程，您可以確保每次更改都得到適當的測試和確認，並確保每個版本的項目都是可用的。
 
+
+pip list --format=freeze > requirements.txt
