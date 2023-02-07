@@ -32,6 +32,8 @@ for index, (image, bin_image) in enumerate(zip(images_list, bin_image_list)):
     current_image = np.copy(image)
     # 檢測關節點，並存在 image 和 points 變量中
     joint_detected_image, joints = detect_joints(current_image)
+    if len(joints) != 21:
+        continue
     # 計算旋轉角度和旋轉矩陣，並存在 angle_rad、angle_deg 和 rotate_matrix 變量中
     rotate_matrix = cal_angle_rotatematrix(joint_detected_image, joints)
     # 對關節點進行旋轉
@@ -40,12 +42,10 @@ for index, (image, bin_image) in enumerate(zip(images_list, bin_image_list)):
     bounding_box_image, bounding_rect = createBoundingBox(joint_detected_image, rotated_joints, rotate_matrix)
     # 儲存 bbox 結果的圖片
     cv2.imwrite(f"{yaml_data['bbox_output_dir']}/{index}.png", bounding_box_image)
-
     # 處理手臂遮罩
     binary_current_image = np.copy(bin_image)
     arm_mask = extract_largest_contour_mask(binary_current_image, bounding_rect)
     cv2.imwrite(f"{yaml_data['arm_mask_output_dir']}/{index}.png", arm_mask)
-
     unit_mask = save_mask_image(arm_mask, yaml_data)
     np.save(f"{yaml_data['unit_mask_output_dir']}/{index}.npy", unit_mask)
 

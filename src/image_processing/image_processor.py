@@ -85,8 +85,10 @@ def read_and_binarize_images(yaml_data):
                 cv2.imwrite(f"{images_output}/{index}.png", image)
                 # 將影像添加到列表中
                 images.append(image)
+
+                image = gamma_correction(image, gamma=1.5)
                 # 影像二值化
-                bin_image = binarize(image, threshold=30)
+                bin_image = binarize(image, threshold=60)
                 # 將影像添加到列表中
                 bin_images.append(bin_image)
                 # 儲存讀取的影像
@@ -134,6 +136,42 @@ def binarize(image, threshold: int):
     except Exception as e:
         logger.logger.error("binarization failed: " + str(e))
         return None
+
+import numpy as np
+
+
+def gamma_correction(image, gamma=1.0):
+    """
+    進行 gamma correction 的函數
+    :param image: numpy.ndarray, 需要進行 gamma correction 的圖片
+    :param gamma: float, gamma 值
+    :return: numpy.ndarray, gamma correction 後的結果
+    """
+    # 建立 gamma correction 的 lookup table
+    look_up_table = np.zeros((256, 1), dtype='uint8')
+    for i in range(256):
+        look_up_table[i][0] = 255 * pow(float(i) / 255, 1.0 / gamma)
+    # 使用 LUT 對圖片進行 gamma correction
+    img_corrected = cv2.LUT(image, look_up_table)
+    return img_corrected
+
+
+def erosion(img, kernel_size=3, iterations=1):
+    """
+    進行腐蝕運算。
+
+    參數：
+        img：要進行腐蝕運算的圖像，必須是一個 NumPy 陣列。
+        kernel_size：核心的大小，預設值為 3。
+        iterations：運算的次數，預設值為 1。
+
+    返回值：
+        腐蝕運算後的圖像，為一個 NumPy 陣列。
+    """
+    kernel = np.ones((kernel_size, kernel_size), np.uint8)
+    return cv2.erode(img, kernel, iterations=iterations)
+
+
 def load_yaml_config(file_path):
 
     """
