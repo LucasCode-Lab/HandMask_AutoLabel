@@ -160,7 +160,7 @@ def createBoundingBox(image, joints, rotationMatrix):
     Returns:
     numpy array, numpy array: The input image with bounding box and the box corners.
     """
-    image = drawPoints(image, joints)
+    # image = drawPoints(image, joints)
 
     # Calculate the maximum length between joints and the center joint
     maxLength = np.linalg.norm(joints[9] - np.array(joints), axis=1).max()
@@ -251,3 +251,5 @@ def save_mask_image(mask_image, yaml_data):
         unit_mask[mask_image == value] = mapped_value
     # Return the resulting unit mask
     return unit_mask
+
+

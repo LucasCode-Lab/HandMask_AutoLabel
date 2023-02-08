@@ -8,20 +8,6 @@ import shutil
 from natsort import natsorted
 from utils import logger
 
-
-def sort_by_number(filename):
-    """
-    根據檔案名的數字對檔案名進行排序
-
-    :param filename: 檔案名字符串 (str)
-    :return: 檔案名數字部分的整數 (int)
-    """
-
-    # Extract the numerical part of the filename using a regular expression
-    number = int(re.findall(r'\d+', filename)[0])
-    return number
-
-
 def ensure_folder(folder: str):
     """
     創建資料夾，如果已存在就刪除重新創建
@@ -56,6 +42,9 @@ def read_and_binarize_images(yaml_data):
     # 二值化影像的輸出路徑
     bin_images_output = yaml_data['output_bin_dir']
     ensure_folder(bin_images_output)
+    # gamma影像的輸出路徑
+    gamma_images_output = yaml_data['output_gamma_dir']
+    ensure_folder(gamma_images_output)
     # 儲存 bbox 結果的圖片
     bbox_images_output = yaml_data['bbox_output_dir']
     ensure_folder(bbox_images_output)
@@ -85,39 +74,29 @@ def read_and_binarize_images(yaml_data):
                 cv2.imwrite(f"{images_output}/{index}.png", image)
                 # 將影像添加到列表中
                 images.append(image)
-
-                image = gamma_correction(image, gamma=1.5)
+                # 增加影像對比
+                image = cv2.convertScaleAbs(image, alpha=2, beta=0)
+                cv2.imwrite(f"{gamma_images_output}/{index}.png", image)
                 # 影像二值化
-                bin_image = binarize(image, threshold=60)
+                bin_image = binarize(image, threshold=55)
+                # 進行腐蝕運算。
+                ero_image = erosion(bin_image, kernel_size=3, iterations=1)
+                # 對輪廓邊緣進行模糊化
+                kernel_size = 5
+                # img_blurred = cv2.GaussianBlur(ero_image, (kernel_size, kernel_size), 0)
+                img_blurred = cv2.medianBlur(ero_image, kernel_size)
+                # 找出最大輪廓範圍
+                img_large = find_largest_contour(img_blurred)
                 # 將影像添加到列表中
-                bin_images.append(bin_image)
+                bin_images.append(img_large)
                 # 儲存讀取的影像
-                cv2.imwrite(f"{bin_images_output}/{index}.png", bin_image)
+                cv2.imwrite(f"{bin_images_output}/{index}.png", img_large)
                 # 增加計數器
                 index += 1
             except Exception as e:
                 print(f"發生錯誤：{e}")
     return images, bin_images
 
-
-# def binarize(image, threshold: int):
-#     """
-#     進行二值化的函數
-#     :param image: numpy.ndarray, 需要進行二值化的圖片
-#     :param threshold: int, 閾值
-#     :return: numpy.ndarray, 二值化後的結果
-#     """
-#     # 檢查 threshold 是否為 int
-#     if not isinstance(threshold, int):
-#         raise TypeError("threshold should be an integer.")
-#
-#     try:
-#         # 將圖片中的像素值大於閾值的設置為1，否則設置為0
-#         binarized = np.where(image > threshold, 255, 0)
-#         return binarized
-#     except Exception as e:
-#         logger.logger.error("binarization failed: " + str(e))
-#         return None
 
 def binarize(image, threshold: int):
     """
@@ -171,6 +150,41 @@ def erosion(img, kernel_size=3, iterations=1):
     kernel = np.ones((kernel_size, kernel_size), np.uint8)
     return cv2.erode(img, kernel, iterations=iterations)
 
+
+def dilate(image, kernel_size=3, iterations=1):
+    """
+    Performs dilation on an image.
+
+    Args:
+    - image (np.array): The input image.
+    - kernel_size (int): The size of the dilation kernel.
+
+    Returns:
+    - dilated_image (np.array): The dilated image.
+    """
+    # Create a dilation kernel
+    kernel = np.ones((kernel_size, kernel_size), np.uint8)
+
+    # Perform dilation
+    dilated_image = cv2.dilate(image, kernel, iterations=iterations)
+
+    return dilated_image
+
+
+def convert_scale_abs(image, alpha, beta):
+    """
+    縮放圖像並轉換為絕對值。
+
+    參數：
+    - image (np.array)：輸入圖像。
+    - alpha (float)：縮放因子。
+    - beta (float)：添加到縮放圖像上的常數。
+
+    返回值：
+    - scaled_image (np.array)：縮放和轉換後的圖像。
+    """
+    # 縮放並將圖像轉換為絕對值
+    return cv2.convertScaleAbs(image, alpha, beta)
 
 def load_yaml_config(file_path):
 
@@ -245,3 +259,56 @@ def image_2_video(folder: str, size: (int, int)):
         out.write(img)
     # 釋放VideoWriter物件
     out.release()
+
+
+def sort_by_number(filename):
+    """
+    根據檔案名的數字對檔案名進行排序
+
+    :param filename: 檔案名字符串 (str)
+    :return: 檔案名數字部分的整數 (int)
+    """
+
+    # Extract the numerical part of the filename using a regular expression
+    number = int(re.findall(r'\d+', filename)[0])
+    return number
+
+
+def find_largest_contour(image):
+    """
+    在二值化圖像上找出最大的輪廓並在黑色背景上畫出白色的最大輪廓面積。
+    參數：
+    - image (np.array)：二值化圖像。
+
+    返回值：
+    - contour_image (np.array)：在黑色背景上畫出白色最大輪廓面積的圖像。
+    """
+    # 找到輪廓
+    contours, _ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # 找到面積最大的輪廓
+    largest_contour = max(contours, key=cv2.contourArea)
+    # 在黑色背景上畫出白色最大輪廓面積
+    contour_image = np.zeros_like(image)
+    cv2.drawContours(contour_image, [largest_contour], 0, 255, -1)
+
+    return contour_image
+
+
+# def binarize(image, threshold: int):
+#     """
+#     進行二值化的函數
+#     :param image: numpy.ndarray, 需要進行二值化的圖片
+#     :param threshold: int, 閾值
+#     :return: numpy.ndarray, 二值化後的結果
+#     """
+#     # 檢查 threshold 是否為 int
+#     if not isinstance(threshold, int):
+#         raise TypeError("threshold should be an integer.")
+#
+#     try:
+#         # 將圖片中的像素值大於閾值的設置為1，否則設置為0
+#         binarized = np.where(image > threshold, 255, 0)
+#         return binarized
+#     except Exception as e:
+#         logger.logger.error("binarization failed: " + str(e))
+#         return None

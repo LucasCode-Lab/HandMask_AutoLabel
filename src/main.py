@@ -52,9 +52,10 @@ for index, (image, bin_image) in enumerate(zip(images_list, bin_image_list)):
     # 產生覆蓋在原圖上的手臂 mask 圖片
     overlay = cv2.addWeighted(image[:, :, 0], 0.4, arm_mask, 0.3, 0)
 
+    gama = cv2.imread(f"{yaml_data['output_gamma_dir']}/{index}.png")
     # 呈現所有處理結果
-    vis_output = show_images(image, bounding_box_image, arm_mask, overlay, binary_current_image)
+    vis_output = show_images(image, bounding_box_image, arm_mask, overlay, binary_current_image, gama)
     cv2.imwrite(f"{yaml_data['merge_vis_dir']}/{index}.png", vis_output)
 
 # 將每張圖片彙整成視頻
-image_2_video(f"{yaml_data['bbox_output_dir']}", (640, 400))
+# image_2_video(f"{yaml_data['bbox_output_dir']}", (640, 400))

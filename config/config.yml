@@ -1,6 +1,7 @@
 image_dir: "images/images/"
 output_raw_dir : "images/raw_images/"
 output_bin_dir : "images/bin_images/"
+output_gamma_dir : "images/gamma_images/"
 bbox_output_dir: "images/bbox_images/"
 arm_mask_output_dir: "images/hand_arm_mask/"
 unit_mask_output_dir: "images/unit_mask_/"
