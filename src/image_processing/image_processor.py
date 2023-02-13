@@ -25,6 +25,22 @@ def ensure_folder(folder: str):
         index -= 1
     logger.logger.info("{}資料夾創建完成".format(folder.split('/')[index]))
 
+def gen_folder(yaml_data):
+
+    user = yaml_data['Class_param']['User']
+    gesture_id = yaml_data['Class_param']["gesture_id"]
+    angle_id = yaml_data['Class_param']["angle_id"]
+    directory_path = {}
+
+    # 儲存各種影像輸出路徑
+    for path in yaml_data["output_dir"]:
+        if yaml_data["output_dir"][path] != "":
+            output = yaml_data["output_dir"][path].format(user, gesture_id, angle_id)
+            ensure_folder(output)
+            directory_path[path] = output
+        else:
+            continue
+    return directory_path
 
 def read_and_binarize_images(yaml_data):
 
@@ -39,34 +55,13 @@ def read_and_binarize_images(yaml_data):
     # 存儲影像的列表
     images = []
     bin_images = []
-    # 輸出路徑
-    images_output = yaml_data['output_raw_dir']
-    ensure_folder(images_output)
-    # 二值化影像的輸出路徑
-    bin_images_output = yaml_data['output_bin_dir']
-    ensure_folder(bin_images_output)
-    # gamma影像的輸出路徑
-    gamma_images_output = yaml_data['output_gamma_dir']
-    ensure_folder(gamma_images_output)
-    # 儲存 bbox 結果的圖片
-    bbox_images_output = yaml_data['bbox_output_dir']
-    ensure_folder(bbox_images_output)
-    # 儲存 arm_mask 結果的圖片
-    arm_mask_output = yaml_data['arm_mask_output_dir']
-    ensure_folder(arm_mask_output)
-    # 儲存 unit_mask 結果的圖片
-    unit_mask_output = yaml_data['unit_mask_output_dir']
-    ensure_folder(unit_mask_output)
-    # 儲存合併視覺化結果的圖片
-    merge_vis_dir = yaml_data['merge_vis_dir']
-    ensure_folder(merge_vis_dir)
 
+    # 產生輸出路徑
+    dir_map = gen_folder(yaml_data)
     # 獲取所有影像文件名稱的列表
     image_files = glob.glob(os.path.join(image_dir, "*.png")) + glob.glob(os.path.join(image_dir, "*.jpg"))
     # 按數字大小排序
     image_files.sort(key=sort_by_number)
-    # 計數器，用於按順序命名影像
-    index = 0
     for index, filename in enumerate(image_files):
         # 判斷是否為jpg或png影像
         if filename.endswith('.jpg') or filename.endswith('.png'):
@@ -74,13 +69,13 @@ def read_and_binarize_images(yaml_data):
                 # 開啟影像文件
                 image = cv2.imread(filename)
                 # 儲存讀取的影像
-                cv2.imwrite(f"{images_output}/{index}.png", image)
+                cv2.imwrite(f"{dir_map['raw_dir']}/{index}.png", image)
                 # 將影像添加到列表中
                 images.append(image)
                 # 增加影像對比
                 image = cv2.convertScaleAbs(image, alpha=2, beta=0)
                 # image = increase_contrast_in_roi(image, roi_size=(200, 300))
-                cv2.imwrite(f"{gamma_images_output}/{index}.png", image)
+                cv2.imwrite(f"{dir_map['contrast_dir']}/{index}.png", image)
                 # 影像二值化
                 bin_image = binarize(image, threshold=47)
                 # 進行腐蝕運算。
@@ -94,12 +89,12 @@ def read_and_binarize_images(yaml_data):
                 # 將影像添加到列表中
                 bin_images.append(img_blurred)
                 # 儲存讀取的影像
-                cv2.imwrite(f"{bin_images_output}/{index}.png", img_blurred)
+                # cv2.imwrite(f"{bin_images_output}/{index}.png", img_blurred)
                 # 增加計數器
                 index += 1
             except Exception as e:
                 print(f"發生錯誤：{e}")
-    return images, bin_images
+    return images, bin_images, dir_map
 
 
 def increase_contrast_in_roi(image, roi_size=(100, 100), alpha=2.5, beta=0):

@@ -1,14 +1,26 @@
 image_dir: "images/images/"
-output_raw_dir : "images/Lucas/1/0/raw_images"
-output_bin_dir : "images/Lucas/1/0/bin_images/"
-output_gamma_dir : "images/Lucas/1/gamma_images/"
-bbox_output_dir: "images/Lucas/1/bbox_images/"
-arm_mask_output_dir: "images/Lucas/1/hand_arm_mask/"
-unit_mask_output_dir: "images/Lucas/1/0/unit_mask/"
-merge_vis_dir: "images/Lucas/1/0/vis/"
+
+Class_param:
+  User: "Lucas"
+  gesture_id: 1
+  angle_id: 1    # 手背 : 0, 90度 : 1, 180度 : 2
+
+output_dir:
+  raw_dir : "images/{}/{}/{}/RawImages"
+  bin_dir : "" # "images/{}/{}/{}/BinImages/"
+  contrast_dir : "images/{}/{}/{}/Contrast/"
+  bbox_dir: "" #"images/{}/{}/{}/BboxImages/"
+  hand_arm_mask_dir: "" #"images/{}/{}/{}/HandArmMask/"
+  unit_mask_dir: "images/{}/{}/{}/UnitMask/"
+  merge_vis_dir: "images/{}/{}/{}/Vis/"
+
 Annotation:
   HandType : 3  # 左手 ： 1, 右手 ： 3
   ArmType : 4 # 左手臂 : 2, 右手臂 : 4
+  left_hand_accessories: False
+  right_hand_accessories: False
+  left_arm_accessories: False
+  right_arm_accessories: False
 
 contrast :
   alpha: 2
