@@ -1,11 +1,20 @@
 image_dir: "images/images/"
-output_raw_dir : "images/raw_images/"
-output_bin_dir : "images/bin_images/"
-output_gamma_dir : "images/gamma_images/"
-bbox_output_dir: "images/bbox_images/"
-arm_mask_output_dir: "images/hand_arm_mask/"
-unit_mask_output_dir: "images/unit_mask_/"
-merge_vis_dir: "images/vis/"
+output_raw_dir : "images/Lucas/1/0/raw_images"
+output_bin_dir : "images/Lucas/1/0/bin_images/"
+output_gamma_dir : "images/Lucas/1/gamma_images/"
+bbox_output_dir: "images/Lucas/1/bbox_images/"
+arm_mask_output_dir: "images/Lucas/1/hand_arm_mask/"
+unit_mask_output_dir: "images/Lucas/1/0/unit_mask/"
+merge_vis_dir: "images/Lucas/1/0/vis/"
 Annotation:
   HandType : 3  # 左手 ： 1, 右手 ： 3
   ArmType : 4 # 左手臂 : 2, 右手臂 : 4
+
+contrast :
+  alpha: 2
+binarize: 55
+erosion:
+  kernel: 3
+  iter: 1
+medianBlur:
+  kernel: 5

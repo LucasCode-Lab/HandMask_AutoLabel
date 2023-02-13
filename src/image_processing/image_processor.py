@@ -16,10 +16,10 @@ def ensure_folder(folder: str):
     """
 
     if not os.path.isdir(folder):
-        os.mkdir(folder)
+        os.makedirs(folder, exist_ok=True)
     else:
         shutil.rmtree(folder, ignore_errors=True)
-        os.mkdir(folder)
+        os.makedirs(folder, exist_ok=True)
     index = -1
     if folder.split('/')[index] == "":
         index -= 1
@@ -27,10 +27,13 @@ def ensure_folder(folder: str):
 
 
 def read_and_binarize_images(yaml_data):
-    """讀取影像目錄內的影像，按順序更名後並存放在指定路徑
+
+    """
+    讀取影像目錄內的影像，按順序更名後並存放在指定路徑
     :param yaml_data: 影像目錄的路徑 (str)
     :return: images: 影像的清單 (list)
     """
+
     image_dir = yaml_data['image_dir']
 
     # 存儲影像的列表
@@ -76,26 +79,51 @@ def read_and_binarize_images(yaml_data):
                 images.append(image)
                 # 增加影像對比
                 image = cv2.convertScaleAbs(image, alpha=2, beta=0)
+                # image = increase_contrast_in_roi(image, roi_size=(200, 300))
                 cv2.imwrite(f"{gamma_images_output}/{index}.png", image)
                 # 影像二值化
-                bin_image = binarize(image, threshold=55)
+                bin_image = binarize(image, threshold=47)
                 # 進行腐蝕運算。
                 ero_image = erosion(bin_image, kernel_size=3, iterations=1)
+                # 找出最大輪廓範圍
+                img_large = find_largest_contour(ero_image)
                 # 對輪廓邊緣進行模糊化
                 kernel_size = 5
                 # img_blurred = cv2.GaussianBlur(ero_image, (kernel_size, kernel_size), 0)
-                img_blurred = cv2.medianBlur(ero_image, kernel_size)
-                # 找出最大輪廓範圍
-                img_large = find_largest_contour(img_blurred)
+                img_blurred = cv2.medianBlur(img_large, kernel_size)
                 # 將影像添加到列表中
-                bin_images.append(img_large)
+                bin_images.append(img_blurred)
                 # 儲存讀取的影像
-                cv2.imwrite(f"{bin_images_output}/{index}.png", img_large)
+                cv2.imwrite(f"{bin_images_output}/{index}.png", img_blurred)
                 # 增加計數器
                 index += 1
             except Exception as e:
                 print(f"發生錯誤：{e}")
     return images, bin_images
+
+
+def increase_contrast_in_roi(image, roi_size=(100, 100), alpha=2.5, beta=0):
+
+    """
+    增加 ROI 區域的對比度。
+    :param image: 輸入的圖像，必須是一個 NumPy 陣列。
+    :param roi_size: ROI 區域的大小，預設值為 (100, 100)。
+    :param alpha: 對比度系數，預設值為 2.5。
+    :param beta: 亮度系數，預設值為 0。
+    :return: 增加對比度後的圖像，為一個 NumPy 陣列。
+    """
+
+    # 創建 ROI
+    rows, cols = image.shape[:2]
+    roi = image[rows - roi_size[0]:rows, cols - roi_size[1]:cols]
+
+    # 對 ROI 增加對比度
+    roi = cv2.convertScaleAbs(roi, alpha=alpha, beta=beta)
+
+    # 將 ROI 複制回圖片中
+    image[rows - roi_size[0]:rows, cols - roi_size[1]:cols] = roi
+
+    return image
 
 
 def binarize(image, threshold: int):
@@ -139,29 +167,27 @@ def erosion(img, kernel_size=3, iterations=1):
     """
     進行腐蝕運算。
 
-    參數：
-        img：要進行腐蝕運算的圖像，必須是一個 NumPy 陣列。
-        kernel_size：核心的大小，預設值為 3。
-        iterations：運算的次數，預設值為 1。
+    :param img: 要進行腐蝕運算的圖像，必須是一個 NumPy 陣列。
+    :param kernel_size: 核心的大小，預設值為 3。
+    :param iterations: 運算的次數，預設值為 1。
 
-    返回值：
-        腐蝕運算後的圖像，為一個 NumPy 陣列。
+    :return: 腐蝕運算後的圖像，為一個 NumPy 陣列。
     """
     kernel = np.ones((kernel_size, kernel_size), np.uint8)
     return cv2.erode(img, kernel, iterations=iterations)
 
 
 def dilate(image, kernel_size=3, iterations=1):
-    """
-    Performs dilation on an image.
 
-    Args:
-    - image (np.array): The input image.
-    - kernel_size (int): The size of the dilation kernel.
-
-    Returns:
-    - dilated_image (np.array): The dilated image.
     """
+    進行膨脹運算。
+
+    :param image: 輸入的圖像，必須是一個 NumPy 陣列。
+    :param kernel_size: 膨脹核的大小。
+
+    :return: 膨脹後的圖像，為一個 NumPy 陣列。
+    """
+
     # Create a dilation kernel
     kernel = np.ones((kernel_size, kernel_size), np.uint8)
 
@@ -240,6 +266,7 @@ def show_images(*images):
 
 
 def image_2_video(folder: str, size: (int, int)):
+
     """
     將圖片轉換為視頻檔案。
 
@@ -247,6 +274,7 @@ def image_2_video(folder: str, size: (int, int)):
     :param size: 視頻幀的大小。
     :return: None
     """
+
     # 取得幀的大小
     frameSize = size
     # 使用指定的輸出檔案名稱、FourCC代碼、每秒幀數和幀大小創建VideoWriter物件
@@ -269,12 +297,13 @@ def sort_by_number(filename):
     :return: 檔案名數字部分的整數 (int)
     """
 
-    # Extract the numerical part of the filename using a regular expression
+    # 使用正則表達式提取文件名的數字部分
     number = int(re.findall(r'\d+', filename)[0])
     return number
 
 
 def find_largest_contour(image):
+
     """
     在二值化圖像上找出最大的輪廓並在黑色背景上畫出白色的最大輪廓面積。
     參數：
@@ -283,6 +312,7 @@ def find_largest_contour(image):
     返回值：
     - contour_image (np.array)：在黑色背景上畫出白色最大輪廓面積的圖像。
     """
+
     # 找到輪廓
     contours, _ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     # 找到面積最大的輪廓
