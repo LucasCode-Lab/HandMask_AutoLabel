@@ -9,6 +9,7 @@
     <option name="namespacePackageFolders">
       <list>
         <option value="$MODULE_DIR$/tests" />
+        <option value="$MODULE_DIR$/src" />
       </list>
     </option>
   </component>

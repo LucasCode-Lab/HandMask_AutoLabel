@@ -2,6 +2,7 @@ from utils import logger
 import argparse
 import cv2
 import numpy as np
+from utils import annotation
 from image_processing.image_processor import(load_yaml_config,
                                              read_and_binarize_images,
                                              show_images,
@@ -64,5 +65,8 @@ for index, (image, bin_image) in enumerate(zip(images_list, bin_image_list)):
     np.save(f"{dir_map['unit_mask_dir']}/{index}.npy", unit_mask)
     cv2.imwrite(f"{dir_map['merge_vis_dir']}/{index}.png", vis_output)
 
+
+annotation.genannotation(yaml_data)
+annotation.annotation_res(yaml_data)
 # 將每張圖片彙整成視頻
 # image_2_video(f"{yaml_data['bbox_output_dir']}", (640, 400))

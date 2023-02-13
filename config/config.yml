@@ -1,4 +1,5 @@
 image_dir: "images/images/"
+annotation_json: "images"
 
 Class_param:
   User: "Lucas"
@@ -6,13 +7,14 @@ Class_param:
   angle_id: 1    # 手背 : 0, 90度 : 1, 180度 : 2
 
 output_dir:
+  dir: "images/{}/{}/{}"
   raw_dir : "images/{}/{}/{}/RawImages"
   bin_dir : "" # "images/{}/{}/{}/BinImages/"
-  contrast_dir : "images/{}/{}/{}/Contrast/"
+  contrast_dir : "images/{}/{}/{}/Contrast"
   bbox_dir: "" #"images/{}/{}/{}/BboxImages/"
   hand_arm_mask_dir: "" #"images/{}/{}/{}/HandArmMask/"
-  unit_mask_dir: "images/{}/{}/{}/UnitMask/"
-  merge_vis_dir: "images/{}/{}/{}/Vis/"
+  unit_mask_dir: "images/{}/{}/{}/UnitMask"
+  merge_vis_dir: "images/{}/{}/{}/Vis"
 
 Annotation:
   HandType : 3  # 左手 ： 1, 右手 ： 3

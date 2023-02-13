@@ -8,8 +8,8 @@
   "images": [
     {
       "image_path": "./images/person/Gid/fid.png",
-      "id": 123,
-      "frame_id": 123,
+      "id": 0,
+      "frame_id": 0,
       "camera": {
           "id" : 0,
           "retify" : false,
@@ -109,6 +109,17 @@
       "supercategory": "rock",
       "id": 1,
       "name": "rock"
+    }
+  ],
+  "Angle_Categories": [
+    {
+      "id": 0
+    },
+        {
+      "id": 1
+    },
+        {
+      "id": 2
     }
   ]
 }
