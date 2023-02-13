@@ -293,7 +293,7 @@ def sort_by_number(filename):
     """
 
     # 使用正則表達式提取文件名的數字部分
-    number = int(re.findall(r'\d+', filename)[0])
+    number = int(re.findall(r'(\d+)\.(png|jpg)', filename)[0][0])
     return number
 
 
