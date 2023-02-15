@@ -69,6 +69,15 @@ A HandMask Autolabel Tool.
 | 三        | 3   |
 | 四        | 4   |
 | 五        | 5   |
+| ya       | 6   |
+| 雞爪       | 7   |
+| 中指       | 8   |
+| 無名指      | 9   |
+| 小指       | 10  |
+
+
+
+
 ***
 ### Position_Categories
 | Category      | ID     | 

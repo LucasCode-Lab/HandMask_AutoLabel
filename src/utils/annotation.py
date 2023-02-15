@@ -169,9 +169,10 @@ def annotation_res(yaml_data: Dict[str, Any]) -> None:
                 "id": global_id,  # 標註編號
                 "image_id": global_id,  # 影像編號
                 "mask_id": global_id,  # 標註編號
-                "categories": yaml_file["categories"],  # 物件類別
+                "categories": categories_copy,  # 物件類別
                 "accessories": yaml_file["annotation"]["accessories"],  # 附屬品資訊
-                "user": yaml_file["User"]  # 使用者資訊
+                "user": yaml_file["User"],  # 使用者資訊
+                "sleeve": yaml_file["sleeve"]
             })
 
             # 更新全域編號
@@ -190,7 +191,6 @@ def annotation_res(yaml_data: Dict[str, Any]) -> None:
                 with open(yaml_data['annotation_dir'] + "/mask/mask_{}.json".format(global_id), "w") as f:
                     f.write(mask_anno_json)
                 with open(yaml_data['annotation_dir'] + "/annotation/annotation_{}.json".format(global_id), "w") as f:
-                    print(yaml_data['annotation_dir'] + "/annotation/annotation_{}.json".format(global_id))
                     f.write(anno_json)
 
                 # 重新建立新的字典

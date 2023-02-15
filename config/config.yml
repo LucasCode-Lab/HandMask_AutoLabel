@@ -4,8 +4,9 @@ sub_yaml_dir: "images/images/"
 
 output_dir_name:
   User: "Lucas"
-  gesture_id: 1
-  angle_id: 0  # 手背 : 0, 90度 : 1, 180度 : 2
+  sleeve: "white"
+  gesture_id: 10
+  angle_id: 2 # 手背 : 0, 90度 : 1, 180度 : 2
   hand_id: right  # 右手 : right, 左手 : left
 
 output_dir:
