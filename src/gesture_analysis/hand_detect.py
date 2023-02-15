@@ -64,8 +64,18 @@ def wrist_finger_vector_angle(wrist, finger):
     cosine_angle = np.dot(wrist_finger_vector, vertical_vector) / (
             np.linalg.norm(wrist_finger_vector) * np.linalg.norm(vertical_vector))
 
-    # 將cosine_angle轉換為弧度值並返回
-    angle = np.arccos(cosine_angle)
+    # 計算 wrist_finger_vector 與 vertical_vector 的叉積
+    cross_product = np.cross(wrist_finger_vector, vertical_vector)
+
+    if cross_product > 0:
+        # wrist_finger_vector 是從 vertical_vector 逆時針方向旋轉得到的
+        angle = np.arccos(cosine_angle)
+    else:
+        # wrist_finger_vector 是從 vertical_vector 順時針方向旋轉得到的
+        angle = -np.arccos(cosine_angle)
+
+    # # 將cosine_angle轉換為弧度值並返回
+    # angle = np.arccos(cosine_angle)
     return angle
 
 

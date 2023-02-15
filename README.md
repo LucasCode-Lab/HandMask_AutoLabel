@@ -61,10 +61,14 @@ A HandMask Autolabel Tool.
 | Right_arm  | 4   | 4         |
 ***
 ### Gesture_Categories (to be edited！！)
-| Category     | ID    | 
-|--------------|-------|
-| index        | 0     | 
-| rock         | 1     |
+| Category | ID  | 
+|----------|-----|
+| index    | 0   | 
+| 一        | 1   |
+| 二        | 2   |
+| 三        | 3   |
+| 四        | 4   |
+| 五        | 5   |
 ***
 ### Position_Categories
 | Category      | ID     | 

@@ -1,11 +1,43 @@
-image_dir: "images/images/"
-output_raw_dir : "images/raw_images/"
-output_bin_dir : "images/bin_images/"
-output_gamma_dir : "images/gamma_images/"
-bbox_output_dir: "images/bbox_images/"
-arm_mask_output_dir: "images/hand_arm_mask/"
-unit_mask_output_dir: "images/unit_mask_/"
-merge_vis_dir: "images/vis/"
+image_dir: "images/input/"
+annotation_dir: "images/annotation"
+sub_yaml_dir: "images/images/"
+
+output_dir_name:
+  User: "Lucas"
+  gesture_id: 1
+  angle_id: 0  # 手背 : 0, 90度 : 1, 180度 : 2
+  hand_id: right  # 右手 : right, 左手 : left
+
+output_dir:
+  dir: "images/images/{}"
+  raw_dir : "images/images/{}/RawImages"
+  bin_dir : "" # "images/{}/{}/{}/BinImages/"
+  contrast_dir : "images/vis/{}/Contrast"
+  bbox_dir: "" #"images/{}/{}/{}/BboxImages/"
+  hand_arm_mask_dir: "" #"images/{}/{}/{}/HandArmMask/"
+  unit_mask_dir: "images/mask/{}/UnitMask"
+  merge_vis_dir: "images/vis/{}/res"
+
 Annotation:
   HandType : 3  # 左手 ： 1, 右手 ： 3
   ArmType : 4 # 左手臂 : 2, 右手臂 : 4
+  accessories:
+    left_hand_accessories: False
+    right_hand_accessories: False
+    left_arm_accessories: False
+    right_arm_accessories: False
+
+"camera":
+  "id" : 0,
+  "retify" : false,
+  "width": 640,
+  "height": 400
+
+contrast :
+  alpha: 2
+binarize: 55
+erosion:
+  kernel: 3
+  iter: 1
+medianBlur:
+  kernel: 5
