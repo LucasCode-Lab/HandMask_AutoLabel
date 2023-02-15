@@ -35,7 +35,7 @@ def sub_annotation(yaml_data: Dict[str, Any], dir_map: Dict[str, str]) -> None:
     else:
         logger.logger.Error("sub_annotation unit_mask路徑找不到!!")
 
-    data = yaml_data.get("Class_param", {})
+    data = yaml_data.get("output_dir_name", {})
     data["image_path"] = dir_map["raw_dir"]
     data["mask_path"] = dir_map["unit_mask_dir"]
     data["camera"] = yaml_data['camera']
@@ -58,7 +58,7 @@ def search_sub_yaml(yaml_data: Dict[str, Any]) -> List[str]:
     # 遞迴搜尋指定目錄下的所有檔案和子目錄
     yaml_path = [
         os.path.join(dir_path, filename)
-        for dir_path, _, filenames in os.walk(yaml_data["sub_yaml"], topdown=False)
+        for dir_path, _, filenames in os.walk(yaml_data["sub_yaml_dir"], topdown=False)
         for filename in filenames if filename.endswith(".yaml")
     ]
     # 印出所有找到的檔案路徑
@@ -114,9 +114,9 @@ def annotation_res(yaml_data: Dict[str, Any]) -> None:
     global_id = 0
 
     # 確保三個資料夾存在, 若不存在則建立
-    ensure_folder(yaml_data['annotation_json'] + "/images")
-    ensure_folder(yaml_data['annotation_json'] + "/mask")
-    ensure_folder(yaml_data['annotation_json'] + "/annotation")
+    ensure_folder(yaml_data['annotation_dir'] + "/images")
+    ensure_folder(yaml_data['annotation_dir'] + "/mask")
+    ensure_folder(yaml_data['annotation_dir'] + "/annotation")
 
     for image_path in yaml_path:
         # 深度拷貝手部類別資訊
@@ -185,12 +185,12 @@ def annotation_res(yaml_data: Dict[str, Any]) -> None:
                 anno_json = json.dumps(data_anno)
 
                 # 將 JSON 格式寫入文件
-                with open(yaml_data['annotation_json'] + "/images/images_{}.json".format(global_id), "w") as f:
+                with open(yaml_data['annotation_dir'] + "/images/images_{}.json".format(global_id), "w") as f:
                     f.write(image_anno_json)
-                with open(yaml_data['annotation_json'] + "/mask/mask_{}.json".format(global_id), "w") as f:
+                with open(yaml_data['annotation_dir'] + "/mask/mask_{}.json".format(global_id), "w") as f:
                     f.write(mask_anno_json)
-                with open(yaml_data['annotation_json'] + "/annotation/annotation_{}.json".format(global_id), "w") as f:
-                    print(yaml_data['annotation_json'] + "/annotation/annotation_{}.json".format(global_id))
+                with open(yaml_data['annotation_dir'] + "/annotation/annotation_{}.json".format(global_id), "w") as f:
+                    print(yaml_data['annotation_dir'] + "/annotation/annotation_{}.json".format(global_id))
                     f.write(anno_json)
 
                 # 重新建立新的字典
@@ -203,10 +203,10 @@ def annotation_res(yaml_data: Dict[str, Any]) -> None:
         image_anno_json = json.dumps(data_image)
         mask_anno_json = json.dumps(data_mask)
         anno_json = json.dumps(data_anno)
-        with open(yaml_data['annotation_json'] + "/images/images_{}.json".format(global_id), "w") as f:
+        with open(yaml_data['annotation_dir'] + "/images/images_{}.json".format(global_id), "w") as f:
             f.write(image_anno_json)
-        with open(yaml_data['annotation_json'] + "/mask/mask_{}.json".format(global_id), "w") as f:
+        with open(yaml_data['annotation_dir'] + "/mask/mask_{}.json".format(global_id), "w") as f:
             f.write(mask_anno_json)
-        with open(yaml_data['annotation_json'] + "/annotation/annotation{}.json".format(global_id), "w") as f:
+        with open(yaml_data['annotation_dir'] + "/annotation/annotation{}.json".format(global_id), "w") as f:
             f.write(anno_json)
 
