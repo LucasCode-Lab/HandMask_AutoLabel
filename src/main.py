@@ -66,7 +66,7 @@ for index, (image, bin_image) in enumerate(zip(images_list, bin_image_list)):
     cv2.imwrite(f"{dir_map['merge_vis_dir']}/{index}.png", vis_output)
 
 
-annotation.genannotation(yaml_data)
+annotation.sub_annotation(yaml_data, dir_map)
 annotation.annotation_res(yaml_data)
 # 將每張圖片彙整成視頻
 # image_2_video(f"{yaml_data['bbox_output_dir']}", (640, 400))
