@@ -44,14 +44,27 @@ def sub_annotation(yaml_data: Dict[str, Any], dir_map: Dict[str, str]) -> None:
         yaml.dump(data, outfile, sort_keys=False)
 
 
-def search_yaml(yaml_data):
-    yaml_path = []
-    for dirpath, dirnames, filenames in os.walk(yaml_data["annotation_json"]):
-        for filename in filenames:
-            if filename.endswith(".yaml"):
-                file_path = os.path.join(dirpath, filename)
-                yaml_path.append(file_path)
-    logger.info("Yaml位置：{}".format(yaml_path))
+def search_sub_yaml(yaml_data: Dict[str, Any]) -> List[str]:
+    """
+    搜尋指定目錄下的所有 .yaml 檔案。
+
+    Args:
+        yaml_data (Dict[str, Any]): 待處理的 YAML 資料。
+
+    Returns:
+        List[str]: 所有符合條件的 .yaml 檔案路徑清單，每個路徑都是一個字串。
+    """
+
+    # 遞迴搜尋指定目錄下的所有檔案和子目錄
+    yaml_path = [
+        os.path.join(dir_path, filename)
+        for dir_path, _, filenames in os.walk(yaml_data["sub_yaml"], topdown=False)
+        for filename in filenames if filename.endswith(".yaml")
+    ]
+    # 印出所有找到的檔案路徑
+    logger.info("找到的 YAML 檔案：\n{}".format("\n".join(yaml_path)))
+
+    # 回傳所有符合條件的檔案路徑清單
     return yaml_path
 
 def annotation_res(yaml_data):
