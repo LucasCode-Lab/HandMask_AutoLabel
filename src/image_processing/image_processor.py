@@ -57,7 +57,6 @@ def gen_folder(yaml_data: dict) -> Dict[str, str]:
 
 
 def read_and_binarize_images(yaml_data):
-
     """
     讀取影像目錄內的影像，按順序更名後並存放在指定路徑
     :param yaml_data: 影像目錄的路徑 (str)
@@ -112,7 +111,6 @@ def read_and_binarize_images(yaml_data):
 
 
 def increase_contrast_in_roi(image, roi_size=(100, 100), alpha=2.5, beta=0):
-
     """
     增加 ROI 區域的對比度。
     :param image: 輸入的圖像，必須是一個 NumPy 陣列。
@@ -153,8 +151,6 @@ def binarize(image, threshold: int):
         logger.logger.error("binarization failed: " + str(e))
         return None
 
-import numpy as np
-
 
 def gamma_correction(image, gamma=1.0):
     """
@@ -187,7 +183,6 @@ def erosion(img, kernel_size=3, iterations=1):
 
 
 def dilate(image, kernel_size=3, iterations=1):
-
     """
     進行膨脹運算。
 
@@ -221,8 +216,8 @@ def convert_scale_abs(image, alpha, beta):
     # 縮放並將圖像轉換為絕對值
     return cv2.convertScaleAbs(image, alpha, beta)
 
-def load_yaml_config(file_path):
 
+def load_yaml_config(file_path):
     """
     讀取 yaml 配置檔
     :param file_path: yaml 配置檔路徑
@@ -275,7 +270,6 @@ def show_images(*images):
 
 
 def image_2_video(folder: str, size: (int, int)):
-
     """
     將圖片轉換為視頻檔案。
 
@@ -307,12 +301,11 @@ def sort_by_number(filename):
     """
 
     # 使用正則表達式提取文件名的數字部分
-    number = int(re.findall(r'(\d+)\.(png|jpg)', filename)[0][0])
+    number = int(re.findall(r'(\d+)\.(png|jpg|npy)', filename)[0][0])
     return number
 
 
 def find_largest_contour(image):
-
     """
     在二值化圖像上找出最大的輪廓並在黑色背景上畫出白色的最大輪廓面積。
     參數：
@@ -331,23 +324,3 @@ def find_largest_contour(image):
     cv2.drawContours(contour_image, [largest_contour], 0, 255, -1)
 
     return contour_image
-
-
-# def binarize(image, threshold: int):
-#     """
-#     進行二值化的函數
-#     :param image: numpy.ndarray, 需要進行二值化的圖片
-#     :param threshold: int, 閾值
-#     :return: numpy.ndarray, 二值化後的結果
-#     """
-#     # 檢查 threshold 是否為 int
-#     if not isinstance(threshold, int):
-#         raise TypeError("threshold should be an integer.")
-#
-#     try:
-#         # 將圖片中的像素值大於閾值的設置為1，否則設置為0
-#         binarized = np.where(image > threshold, 255, 0)
-#         return binarized
-#     except Exception as e:
-#         logger.logger.error("binarization failed: " + str(e))
-#         return None
