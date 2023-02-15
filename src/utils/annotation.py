@@ -1,43 +1,47 @@
-import glob
 import os
+import re
 import json
+import glob
+import copy
 import yaml
-
+from typing import Dict, List
 from utils.logger import logger
-from image_processing.image_processor import sort_by_number
+from typing_extensions import Any
+from image_processing.image_processor import sort_by_number, ensure_folder
 
 
-def genannotation(yaml_data):
-    user = yaml_data['Class_param']['User']
-    gesture_id = yaml_data['Class_param']['gesture_id']
-    angle_id = yaml_data['Class_param']['angle_id']
-    # 創建yaml資訊
-    data = {
+def sub_annotation(yaml_data: Dict[str, Any], dir_map: Dict[str, str]) -> None:
+    """
+    將 yaml_data 檔案中的 annotation 資訊寫入到指定路徑下的 data.yaml 檔案中
+    並添加 image_path, mask_path, camera 和 accessories 屬性，
+    然後將結果寫入 data.yaml 檔案中，供後續產生 annotation JSON 檔案使用。
 
-        "image_path": yaml_data["output_dir"]["raw_dir"].format(user, gesture_id, angle_id),
-        "camera": {
-            "id": 0,
-            "retify": False,
-            "width": 640,
-            "height": 400
-        },
-        "mask": {
-            "mask_path": yaml_data["output_dir"]["unit_mask_dir"].format(user, gesture_id, angle_id)
-        },
-        "annotation": {
-            "left_hand_accessories": yaml_data['Annotation']['left_hand_accessories'],
-            "right_hand_accessories": yaml_data['Annotation']['right_hand_accessories'],
-            "left_arm_accessories": yaml_data['Annotation']['left_arm_accessories'],
-            "right_arm_accessories": yaml_data['Annotation']['right_arm_accessories']
-        },
-        "angle": {
-            "angle_id": yaml_data['Class_param']['angle_id']
-        }
-    }
+    Args:
+        yaml_data (Dict[str, Any]): 待處理的 yaml 資料。
+        dir_map (Dict[str, str]): 路徑映射字典，包含 raw_dir 和 unit_mask_dir 。
 
-    # 寫入 YAML 檔
-    with open(yaml_data['output_dir']['dir'].format(user, gesture_id, angle_id)+"/data.yaml", "w") as outfile:
-        yaml.dump(data, outfile)
+    :param yaml_data: 原始 YAML 檔案的資料
+    :type yaml_data: Dict
+    :param dir_map: 存放寫入資料的目標路徑
+    :type dir_map: Dict
+    :return: None
+    """
+    if os.path.exists(dir_map["raw_dir"]):
+        pass
+    else:
+        logger.logger.Error("sub_annotation raw_dir路徑找不到!!")
+    if os.path.exists(dir_map["unit_mask_dir"]):
+        pass
+    else:
+        logger.logger.Error("sub_annotation unit_mask路徑找不到!!")
+
+    data = yaml_data.get("Class_param", {})
+    data["image_path"] = dir_map["raw_dir"]
+    data["mask_path"] = dir_map["unit_mask_dir"]
+    data["camera"] = yaml_data['camera']
+    data["annotation"] = yaml_data["Annotation"]
+    with open(dir_map['dir'] + "/data.yaml", "w") as outfile:
+        yaml.dump(data, outfile, sort_keys=False)
 
 
 def search_yaml(yaml_data):
