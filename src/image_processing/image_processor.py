@@ -60,8 +60,8 @@ def process_images(yaml_data, image_files, dir_map):
     log_default_binarize = 'binarize' in yaml_data["image_filter"]
     logger.info("binarize is open" if log_default_binarize else "binarize is close")
 
-    log_default_erosion = 'erosion' in yaml_data["image_filter"]
-    logger.info("erosion is open" if log_default_erosion else "erosion is close")
+    log_default_morphologyEx = 'morphologyEx' in yaml_data["image_filter"]
+    logger.info("morphologyEx is open" if log_default_morphologyEx else "morphologyEx is close")
 
     log_default_medianBlur = 'medianBlur' in yaml_data["image_filter"]
     logger.info("medianBlur is open" if log_default_medianBlur else "medianBlur is close")
@@ -84,36 +84,36 @@ def process_images(yaml_data, image_files, dir_map):
                     image = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
                     cv2.imwrite(f"{dir_map['contrast_dir']}/{index}.png", image)
                 else:
-                    continue
+                    pass
 
                 # 影像二值化
                 if log_default_binarize:
                     threshold = yaml_data["image_filter"]['binarize'].get('threshold', 47)
-                    bin_image = binarize(image, threshold=threshold)
+                    image = binarize(image, threshold=threshold)
                 else:
                     threshold = 47
-                    bin_image = binarize(image, threshold=threshold)
-
-                # 進行腐蝕運算。
-                if log_default_erosion:
-                    kernel_size = yaml_data["image_filter"]['erosion'].get('kernel', 3)
-                    iterations = yaml_data["image_filter"]['erosion'].get('iter', 1)
-                    ero_image = erosion(bin_image, kernel_size=kernel_size, iterations=iterations)
-                else:
-                    ero_image = bin_image
+                    image = binarize(image, threshold=threshold)
 
                 # 找出最大輪廓範圍
-                img_large = find_largest_contour(ero_image)
+                image = find_largest_contour(image)
+
+                # 進行腐蝕膨脹運算。
+                if log_default_morphologyEx:
+                    kernel_size = yaml_data["image_filter"]['morphologyEx'].get('kernel', 3)
+                    image = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel=(kernel_size, kernel_size))
+                else:
+                    pass
+
 
                 # 對輪廓邊緣進行模糊化
                 if log_default_medianBlur:
                     kernel_size = yaml_data["image_filter"]['medianBlur'].get('kernel', 5)
-                    img_blurred = cv2.medianBlur(img_large, kernel_size)
+                    # image = cv2.medianBlur(image, kernel_size)
+                    image = cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
                 else:
-                    img_blurred = img_large
-
+                    pass
                 # 將影像添加到列表中
-                bin_images.append(img_blurred)
+                bin_images.append(image)
 
                 # 儲存讀取的影像
                 # cv2.imwrite(f"{bin_images_output}/{index}.png", img_blurred)
@@ -157,11 +157,13 @@ def binarize(image, threshold: int):
     try:
         # 將圖片轉換成灰階色彩
         img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
         # 透過阈值二值化
         ret, mask = cv2.threshold(img_gray, threshold, 255, cv2.THRESH_BINARY)
+
         return mask
     except Exception as e:
-        logger.logger.error("binarization failed: " + str(e))
+        logger.error("binarization failed: " + str(e))
         return None
 
 
