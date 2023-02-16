@@ -1,6 +1,6 @@
 import cv2
 import unittest
-from ..src.gesture_analysis.hand_detect import detect_joints
+from ..src.autolabel.hand_detect import detect_joints
 
 class TestJointDetection(unittest.TestCase):
     def setUp(self):

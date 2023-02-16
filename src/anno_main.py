@@ -1,7 +1,8 @@
-from utils import annotation
-from utils import logger
+from autolabel import annotation
+from utils.logger import configure_logging
 import argparse
-from image_processing.image_processor import load_yaml_config
+from utils.file_manage import load_yaml_config
+logger = configure_logging(__name__)
 
 parser = argparse.ArgumentParser(description='Process yaml config file path.')
 # 加入命令列參數 --config，並設定目標變數名稱為 config_path
@@ -11,8 +12,7 @@ args = parser.parse_args()
 # 將命令列參數中的 YAML 檔案位置存到變數 yaml_config_path
 yaml_config_path = args.config_path
 # 使用 logger 記錄器，記錄 YAML 檔案位置
-logger.logger.info("Yaml 檔案位置: {}".format(yaml_config_path))
+logger.info("Yaml 檔案位置: {}".format(yaml_config_path))
 # 使用 load_yaml_config 函數讀取 YAML 配置檔，並存到變數 yaml_data
 yaml_data = load_yaml_config(yaml_config_path)
-
 annotation.annotation_res(yaml_data)

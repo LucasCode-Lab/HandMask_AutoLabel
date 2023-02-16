@@ -1,18 +1,17 @@
 import cv2
 import argparse
 import numpy as np
-from utils import annotation
+from autolabel import annotation
 from utils.file_manage import load_yaml_config
 from utils.logger import configure_logging
 from image_processing.image_processor import (process_and_save_images,
-                                              show_images,
-                                              image_2_video)
-from gesture_analysis.hand_detect import (detect_joints,
-                                          cal_angle_rotatematrix,
-                                          rotate_points,
-                                          createBoundingBox,
-                                          extract_largest_contour_mask,
-                                          save_mask_image)
+                                              show_images)
+from autolabel.hand_detect import (detect_joints,
+                                   cal_angle_rotatematrix,
+                                   rotate_points,
+                                   createBoundingBox,
+                                   extract_largest_contour_mask,
+                                   save_mask_image)
 logger = configure_logging(__name__)
 
 parser = argparse.ArgumentParser(description='Process yaml config file path.')
