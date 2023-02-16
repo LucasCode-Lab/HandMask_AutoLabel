@@ -8,8 +8,9 @@ from typing import Dict, List
 from typing_extensions import Any
 from image_processing.image_processor import sort_by_number
 
-from utils.logger import logger
-from utils.file_management import ensure_folder
+from utils.logger import configure_logging
+from utils.file_manage import ensure_folder
+logger = configure_logging(__name__)
 
 
 def sub_annotation(yaml_data: Dict[str, Any], dir_map: Dict[str, str]) -> None:
@@ -31,11 +32,11 @@ def sub_annotation(yaml_data: Dict[str, Any], dir_map: Dict[str, str]) -> None:
     if os.path.exists(dir_map["raw_dir"]):
         pass
     else:
-        logger.logger.Error("sub_annotation raw_dir路徑找不到!!")
+        logger.Error("sub_annotation raw_dir路徑找不到!!")
     if os.path.exists(dir_map["unit_mask_dir"]):
         pass
     else:
-        logger.logger.Error("sub_annotation unit_mask路徑找不到!!")
+        logger.Error("sub_annotation unit_mask路徑找不到!!")
 
     data = yaml_data.get("output_dir_name", {})
     data["image_path"] = dir_map["raw_dir"]
@@ -64,7 +65,7 @@ def search_sub_yaml(yaml_data: Dict[str, Any]) -> List[str]:
         for filename in filenames if filename.endswith(".yaml")
     ]
     # 印出所有找到的檔案路徑
-    logger.info("找到的 YAML 檔案：\n{}".format("\n".join(yaml_path)))
+    logger.info("找到的 YAML 檔案：\n{}\n".format("\n".join(yaml_path)))
 
     # 回傳所有符合條件的檔案路徑清單
     return yaml_path

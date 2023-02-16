@@ -6,8 +6,10 @@ import cv2
 import numpy as np
 from natsort import natsorted
 
-from utils import logger
-from utils.file_management import ensure_folder, gen_folder
+from utils.logger import configure_logging
+from utils.file_manage import ensure_folder, gen_folder
+
+logger = configure_logging(__name__)
 
 
 def read_and_binarize_images(yaml_data):

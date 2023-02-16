@@ -15,13 +15,11 @@ def ensure_folder(folder: str) -> None:
     if not os.path.isdir(folder):
         os.makedirs(folder, exist_ok=True)
     else:
-        logger.logger.info(f"資料夾 {folder} 已存在, 將其移除！")
+        logger.info(f"路徑: {folder} 已存在, 將其移除！")
         shutil.rmtree(folder, ignore_errors=True)
         os.makedirs(folder, exist_ok=True)
-    index = -1
-    if folder.split('/')[index] == "":
-        index -= 1
-    logger.logger.info("{}資料夾創建完成".format(folder.split('/')[index]))
+
+    logger.info(f"{folder} 輸出路徑創建完成\n")
 
 
 def gen_folder(yaml_data: dict) -> Dict[str, str]:
