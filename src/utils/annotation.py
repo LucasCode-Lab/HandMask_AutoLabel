@@ -5,9 +5,11 @@ import glob
 import copy
 import yaml
 from typing import Dict, List
-from utils.logger import logger
 from typing_extensions import Any
-from image_processing.image_processor import sort_by_number, ensure_folder
+from image_processing.image_processor import sort_by_number
+
+from utils.logger import logger
+from utils.file_management import ensure_folder
 
 
 def sub_annotation(yaml_data: Dict[str, Any], dir_map: Dict[str, str]) -> None:

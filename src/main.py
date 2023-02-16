@@ -1,12 +1,12 @@
-from utils import logger
-import argparse
 import cv2
+import argparse
 import numpy as np
+from utils import logger
 from utils import annotation
-from image_processing.image_processor import(load_yaml_config,
-                                             read_and_binarize_images,
-                                             show_images,
-                                             image_2_video)
+from image_processing.image_processor import (load_yaml_config,
+                                              read_and_binarize_images,
+                                              show_images,
+                                              image_2_video)
 from gesture_analysis.hand_detect import (detect_joints,
                                           cal_angle_rotatematrix,
                                           rotate_points,
@@ -58,13 +58,11 @@ for index, (image, bin_image) in enumerate(zip(images_list, bin_image_list)):
     gama = cv2.imread(f"{dir_map['contrast_dir']}/{index}.png")
     vis_output = show_images(image, bounding_box_image, arm_mask, overlay, binary_current_image, gama)
 
-
     # 儲存結果的圖片
     # cv2.imwrite(f"{dir_map['bbox_images_output']}/{index}.png", bounding_box_image)
     # cv2.imwrite(f"{dir_map['arm_mask_output']}/{index}.png", arm_mask)
     np.save(f"{dir_map['unit_mask_dir']}/{index}.npy", unit_mask)
     cv2.imwrite(f"{dir_map['merge_vis_dir']}/{index}.png", vis_output)
-
 
 annotation.sub_annotation(yaml_data, dir_map)
 annotation.annotation_res(yaml_data)
