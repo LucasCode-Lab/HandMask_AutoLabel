@@ -63,7 +63,7 @@ A HandMask Autolabel Tool.
 ### Gesture_Categories (to be edited！！)
 | Category | ID  | 
 |----------|-----|
-| index    | 0   | 
+| 零        | 0   |
 | 一        | 1   |
 | 二        | 2   |
 | 三        | 3   |
@@ -74,9 +74,9 @@ A HandMask Autolabel Tool.
 | 中指       | 8   |
 | 無名指      | 9   |
 | 小指       | 10  |
-
-
-
+| 姆指       | 11  |
+| ok       | 12  |
+| pinch    | 13  |
 
 ***
 ### Position_Categories
