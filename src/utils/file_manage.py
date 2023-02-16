@@ -1,8 +1,10 @@
 import os
 import shutil
-from utils import logger
-
+import yaml
 from typing import Dict
+from utils.logger import configure_logging
+
+logger = configure_logging(__name__)
 
 
 def ensure_folder(folder: str) -> None:
@@ -49,3 +51,20 @@ def gen_folder(yaml_data: dict) -> Dict[str, str]:
         else:
             continue
     return directory_path
+
+
+def load_yaml_config(file_path):
+    """
+    讀取 yaml 配置檔
+    :param file_path: yaml 配置檔路徑
+    :return: 讀取到的 yaml 配置資料
+    """
+
+    # 檢查檔案是否存在
+    assert os.path.isfile(file_path), "Yaml File Not Exist!!"
+    # 使用 logger 記錄器，記錄 YAML 檔案位置
+    logger.info("Yaml 檔案存在: {} \n".format(file_path))
+    # 讀取 yaml 檔案
+    with open(file_path, "r") as stream:
+        yaml_data = yaml.full_load(stream)
+    return yaml_data
