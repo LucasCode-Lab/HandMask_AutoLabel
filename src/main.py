@@ -1,10 +1,10 @@
 import cv2
 import argparse
 import numpy as np
-from utils import logger
 from utils import annotation
-from image_processing.image_processor import (load_yaml_config,
-                                              read_and_binarize_images,
+from utils.file_manage import load_yaml_config
+from utils.logger import configure_logging
+from image_processing.image_processor import (process_and_save_images,
                                               show_images,
                                               image_2_video)
 from gesture_analysis.hand_detect import (detect_joints,
@@ -25,7 +25,7 @@ yaml_config_path = args.config_path
 # 使用 load_yaml_config 函數讀取 YAML 配置檔，並存到變數 yaml_data
 yaml_data = load_yaml_config(yaml_config_path)
 # 使用 read_and_binarize_images 函數，讀取並二值化圖片
-images_list, bin_image_list, dir_map = read_and_binarize_images(yaml_data)
+images_list, bin_image_list, dir_map = process_and_save_images(yaml_data)
 
 for index, (image, bin_image) in enumerate(zip(images_list, bin_image_list)):
     # 創建圖片的拷貝以進行處理

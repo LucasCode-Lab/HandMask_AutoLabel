@@ -3,7 +3,7 @@ import numpy as np
 import unittest
 import yaml
 from PIL import Image
-from src.image_processing.image_processor import read_and_binarize_images, binarize, load_yaml_config
+from src.image_processing.image_processor import process_and_save_images, binarize, load_yaml_config
 
 
 class TestImageReader(unittest.TestCase):
@@ -11,7 +11,7 @@ class TestImageReader(unittest.TestCase):
         # 定義影像目錄的路徑
         image_dir = "../images/test_images/"
         # 讀取影像
-        images = read_and_binarize_images(image_dir)
+        images = process_and_save_images(image_dir)
         # 檢查是否有至少一張影像被讀取
         assert len(images) > 0, f"無法讀取影像: {image_dir}"
 

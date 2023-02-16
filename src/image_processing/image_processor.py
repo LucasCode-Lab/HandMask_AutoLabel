@@ -12,25 +12,60 @@ from utils.file_manage import ensure_folder, gen_folder
 logger = configure_logging(__name__)
 
 
-def read_and_binarize_images(yaml_data):
+def process_and_save_images(yaml_data):
     """
-    讀取影像目錄內的影像，按順序更名後並存放在指定路徑
-    :param yaml_data: 影像目錄的路徑 (str)
+    讀取影像目錄內的影像，按順序更名後並存放在指定路徑，並進行其他影像處理
+    :param yaml_data: 影像目錄的設定檔案 (dictionary)
     :return: images: 影像的清單 (list)
+             bin_images: 二值化處理後的影像清單 (list)
+             dir_map: 儲存目錄的名稱和路徑 (dictionary)
     """
 
+    # 取得影像目錄的路徑
     image_dir = yaml_data['image_dir']
 
-    # 存儲影像的列表
-    images = []
-    bin_images = []
-
-    # 產生輸出路徑
+    # 產生輸出路徑，dir_map 包含了儲存目錄的名稱和路徑
     dir_map = gen_folder(yaml_data)
+
     # 獲取所有影像文件名稱的列表
     image_files = glob.glob(os.path.join(image_dir, "*.png")) + glob.glob(os.path.join(image_dir, "*.jpg"))
+
     # 按數字大小排序
     image_files.sort(key=sort_by_number)
+
+    # 進行影像處理
+    images, bin_images = process_images(yaml_data, image_files, dir_map)
+
+    return images, bin_images, dir_map
+
+
+def process_images(yaml_data, image_files, dir_map):
+    """
+    對影像進行處理，包括對比增強、影像二值化、腐蝕運算、找出最大輪廓範圍、邊緣模糊化
+
+    :param yaml_data:    配置文件數據 (dict)
+    :param image_files:  影像文件列表 (list)
+    :param dir_map:      文件夾路徑 (dict)
+    :return: images:     原始影像列表 (list)
+    :return: bin_images: 二值化影像列表 (list)
+    """
+    logger.info("[-------- 影像處理開始 ----------]！")
+
+    images = []      # 原始影像清單
+    bin_images = []  # 二值化影像清單
+
+    log_default_contrast = 'contrast' in yaml_data["image_filter"]
+    logger.info("contrast is open" if log_default_contrast else "contrast is close")
+
+    log_default_binarize = 'binarize' in yaml_data["image_filter"]
+    logger.info("binarize is open" if log_default_binarize else "binarize is close")
+
+    log_default_erosion = 'erosion' in yaml_data["image_filter"]
+    logger.info("erosion is open" if log_default_erosion else "erosion is close")
+
+    log_default_medianBlur = 'medianBlur' in yaml_data["image_filter"]
+    logger.info("medianBlur is open" if log_default_medianBlur else "medianBlur is close")
+
     for index, filename in enumerate(image_files):
         # 判斷是否為jpg或png影像
         if filename.endswith('.jpg') or filename.endswith('.png'):
@@ -41,30 +76,52 @@ def read_and_binarize_images(yaml_data):
                 cv2.imwrite(f"{dir_map['raw_dir']}/{index}.png", image)
                 # 將影像添加到列表中
                 images.append(image)
+
                 # 增加影像對比
-                image = cv2.convertScaleAbs(image, alpha=2, beta=0)
-                # image = increase_contrast_in_roi(image, roi_size=(200, 300))
-                cv2.imwrite(f"{dir_map['contrast_dir']}/{index}.png", image)
+                if log_default_contrast:
+                    alpha = yaml_data["image_filter"]['contrast'].get('alpha', 1)
+                    beta = yaml_data["image_filter"]['contrast'].get('beta', 0)
+                    image = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
+                    cv2.imwrite(f"{dir_map['contrast_dir']}/{index}.png", image)
+                else:
+                    continue
+
                 # 影像二值化
-                bin_image = binarize(image, threshold=47)
+                if log_default_binarize:
+                    threshold = yaml_data["image_filter"]['binarize'].get('threshold', 47)
+                    bin_image = binarize(image, threshold=threshold)
+                else:
+                    threshold = 47
+                    bin_image = binarize(image, threshold=threshold)
+
                 # 進行腐蝕運算。
-                ero_image = erosion(bin_image, kernel_size=3, iterations=1)
+                if log_default_erosion:
+                    kernel_size = yaml_data["image_filter"]['erosion'].get('kernel', 3)
+                    iterations = yaml_data["image_filter"]['erosion'].get('iter', 1)
+                    ero_image = erosion(bin_image, kernel_size=kernel_size, iterations=iterations)
+                else:
+                    ero_image = bin_image
+
                 # 找出最大輪廓範圍
                 img_large = find_largest_contour(ero_image)
+
                 # 對輪廓邊緣進行模糊化
-                kernel_size = 5
-                # img_blurred = cv2.GaussianBlur(ero_image, (kernel_size, kernel_size), 0)
-                img_blurred = cv2.medianBlur(img_large, kernel_size)
+                if log_default_medianBlur:
+                    kernel_size = yaml_data["image_filter"]['medianBlur'].get('kernel', 5)
+                    img_blurred = cv2.medianBlur(img_large, kernel_size)
+                else:
+                    img_blurred = img_large
+
                 # 將影像添加到列表中
                 bin_images.append(img_blurred)
+
                 # 儲存讀取的影像
                 # cv2.imwrite(f"{bin_images_output}/{index}.png", img_blurred)
-                # 增加計數器
-                index += 1
-            except Exception as e:
-                print(f"發生錯誤：{e}")
-    return images, bin_images, dir_map
 
+            except Exception as e:
+                logger.error(f"發生錯誤：{e}")
+    logger.info("[-------- Image-Filter-End ----------]！\n")
+    return images, bin_images
 
 def increase_contrast_in_roi(image, roi_size=(100, 100), alpha=2.5, beta=0):
     """
@@ -171,21 +228,6 @@ def convert_scale_abs(image, alpha, beta):
     """
     # 縮放並將圖像轉換為絕對值
     return cv2.convertScaleAbs(image, alpha, beta)
-
-
-def load_yaml_config(file_path):
-    """
-    讀取 yaml 配置檔
-    :param file_path: yaml 配置檔路徑
-    :return: 讀取到的 yaml 配置資料
-    """
-
-    # 檢查檔案是否存在
-    assert os.path.isfile(file_path), "Yaml File Not Exist!!"
-    # 讀取 yaml 檔案
-    with open(file_path, "r") as stream:
-        yaml_data = yaml.full_load(stream)
-    return yaml_data
 
 
 def show_images(*images):
