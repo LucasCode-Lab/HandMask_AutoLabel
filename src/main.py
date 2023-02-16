@@ -33,18 +33,13 @@ for index, (image, bin_image) in enumerate(zip(images_list, bin_image_list)):
     joint_detected_image, joints = detect_joints(current_image)
     if len(joints) != 21:
         continue
-    # 計算旋轉角度和旋轉矩陣，並存在 angle_rad、angle_deg 和 rotate_matrix 變量中
-    rotate_matrix = cal_angle_rotatematrix(joint_detected_image, joints)
-
-    # 對關節點進行旋轉
-    rotated_joints = rotate_points(joints, rotate_matrix)
 
     # 創建手部邊界框
-    bounding_box_image, bounding_rect = createBoundingBox(joint_detected_image, rotated_joints, rotate_matrix)
+    bounding_box_image, bboxRadius = createBoundingBox(joint_detected_image, joints)
 
     # 處理手臂遮罩
     binary_current_image = np.copy(bin_image)
-    arm_mask = extract_largest_contour_mask(binary_current_image, bounding_rect)
+    arm_mask = extract_largest_contour_mask(binary_current_image, joints, bboxRadius)
 
     # unimask
     unit_mask = save_mask_image(arm_mask, yaml_data)
@@ -54,13 +49,14 @@ for index, (image, bin_image) in enumerate(zip(images_list, bin_image_list)):
 
     # 呈現所有處理結果
     gama = cv2.imread(f"{dir_map['contrast_dir']}/{index}.png")
-    vis_output = show_images(image, bounding_box_image, arm_mask, overlay, binary_current_image, gama)
+    vis_output = show_images(image, joint_detected_image, arm_mask, overlay, bounding_box_image, gama)
 
     # 儲存結果的圖片
     # cv2.imwrite(f"{dir_map['bbox_images_output']}/{index}.png", bounding_box_image)
     # cv2.imwrite(f"{dir_map['arm_mask_output']}/{index}.png", arm_mask)
     np.save(f"{dir_map['unit_mask_dir']}/{index}.npy", unit_mask)
     cv2.imwrite(f"{dir_map['merge_vis_dir']}/{index}.png", vis_output)
+    cv2.imwrite(f"{dir_map['bin_vis_dir']}/{index}.png", bin_image)
 
 annotation.sub_annotation(yaml_data, dir_map)
 annotation.annotation_res(yaml_data)
