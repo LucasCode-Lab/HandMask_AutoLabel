@@ -17,6 +17,7 @@ def detect_joints(image):
         points：二維數組，表示關節點的横縱座標，以[x,y]表示。如果未偵測到任何關節點，則返回空列表。
     """
 
+    image = image.copy()
     # 處理輸入圖像
     results = hands.process(image)
 
@@ -158,108 +159,108 @@ def drawPoints(image, points):
     return image
 
 
-def createBoundingBox(image, joints, rotationMatrix):
+def createBoundingBox(image: np.ndarray, joints: np.ndarray) -> tuple:
     """
-    Draw a bounding box around the given joints and return the box corners.
+    在關節周圍繪製邊界框，並返回邊界框半徑長度。
 
-    Parameters:
-    image (numpy array): The input image.
-    joints (numpy array): The positions of joints.
-    rotationMatrix (numpy array): The rotation matrix.
+    :param image: 輸入圖像。
+    :type image: numpy array
 
-    Returns:
-    numpy array, numpy array: The input image with bounding box and the box corners.
+    :param joints: 手指節點位置。
+    :type joints: numpy array
+
+    :return: 包含邊界框圖像和邊界框半徑長度。
+    :rtype: tuple
     """
+
     # image = drawPoints(image, joints)
+    image_circle = image.copy()
 
-    # Calculate the maximum length between joints and the center joint
+    # 計算關節之間和中心關節之間的最大距離
     maxLength = np.linalg.norm(joints[9] - np.array(joints), axis=1).max()
-    # Calculate the bounding box radius
-    bboxRadius = maxLength * 1.1 + 1
-    leftUp = (int(joints[9][0] - bboxRadius), int(joints[9][1] - bboxRadius))
-    rightDown = (int(joints[9][0] + bboxRadius), int(joints[9][1] + bboxRadius))
-    # Calculate the corners of the bounding box
-    bboxCorners = np.array([
-        [leftUp[0], leftUp[1]],
-        [leftUp[0], rightDown[1]],
-        [rightDown[0], leftUp[1]],
-        [rightDown[0], rightDown[1]],
-    ]) - joints[0]
-    bboxCorners = np.dot(np.linalg.inv(rotationMatrix), bboxCorners.T).T + joints[0]
-    # Draw the bounding box on the image
-    cv2.line(image, tuple(bboxCorners[0].astype(int)), tuple(bboxCorners[1].astype(int)), (0, 0, 255), 1)
-    cv2.line(image, tuple(bboxCorners[0].astype(int)), tuple(bboxCorners[2].astype(int)), (0, 0, 255), 1)
-    cv2.line(image, tuple(bboxCorners[1].astype(int)), tuple(bboxCorners[3].astype(int)), (0, 0, 255), 1)
-    cv2.line(image, tuple(bboxCorners[2].astype(int)), tuple(bboxCorners[3].astype(int)), (0, 0, 255), 1)
 
-    return image, bboxCorners
+    # 計算邊界框半徑
+    bboxRadius1 = maxLength * 0.6 + 1
+    bboxRadius2 = maxLength * 1.1 + 1
+    bboxRadius3 = maxLength * 0.8 + 1
+
+    # 在特定關節周圍繪製圓形
+    cv2.circle(image_circle, (int(joints[0][0]), int(joints[0][1])), int(bboxRadius1), (0, 0, 0), -1)
+    cv2.circle(image_circle, (int(joints[9][0]), int(joints[9][1])), int(bboxRadius2), (0, 0, 0), -1)
+    cv2.circle(image_circle, (int(joints[4][0]), int(joints[4][1])), int(bboxRadius3), (0, 0, 0), -1)
+    cv2.circle(image_circle, (int(joints[8][0]), int(joints[8][1])), int(bboxRadius3), (0, 0, 0), -1)
+    cv2.circle(image_circle, (int(joints[12][0]), int(joints[12][1])), int(bboxRadius3), (0, 0, 0), -1)
+    cv2.circle(image_circle, (int(joints[16][0]), int(joints[16][1])), int(bboxRadius3), (0, 0, 0), -1)
+    cv2.circle(image_circle, (int(joints[20][0]), int(joints[20][1])), int(bboxRadius3), (0, 0, 0), -1)
+    return image_circle, maxLength
 
 
-def extract_largest_contour_mask(original_mask, rectangle):
+def extract_largest_contour_mask(original_mask: np.ndarray, joints: np.ndarray, bboxRadius: float) -> np.ndarray:
     """
-    Extract the largest contour from a binary mask, by subtracting the
-    area enclosed by a given rectangle.
+    從二元遮罩中提取最大的輪廓，方法是減去一些圓形框住的區域。
 
-    Parameters:
-    original_mask (np.ndarray): The original binary mask.
-    rectangle (np.ndarray): A 4-point array representing the rectangle.
+    :param original_mask: 原始二元遮罩。
+    :type original_mask: np.ndarray
+    :param joints: 關節點的座標數組。
+    :type joints: np.ndarray
+    :param bboxRadius: 矩形框的半徑大小。
+    :type bboxRadius: float
+    :return: 最大輪廓的二元遮罩。
+    :rtype: np.ndarray
 
-    Returns:
-    np.ndarray: The binary mask of the largest contour.
     """
-    # Copy the original mask to avoid modifying it in place
+    # 複製原始遮罩以避免就地修改
     mask = original_mask.copy()
-    # Create a polygon from the rectangle
-    polygon = np.array([[int(rectangle[0][0]), int(rectangle[0][1])], [int(rectangle[1][0]), int(rectangle[1][1])],
-                        [int(rectangle[3][0]), int(rectangle[3][1])], [int(rectangle[2][0]), int(rectangle[2][1])]],
-                       np.int32)
 
-    # Fill the polygon with black color in the mask
-    cv2.fillPoly(mask, pts=[polygon], color=(0, 0, 0))
+    # 設定圓形範圍，並在遮罩中把它們填成黑色
+    bboxRadius1 = bboxRadius * 0.8 + 1
+    cv2.circle(mask, (int(joints[0][0]), int(joints[0][1])), int(bboxRadius1), (0, 0, 0), -1)
+    bboxRadius2 = bboxRadius * 1.1 + 1
+    cv2.circle(mask, (int(joints[9][0]), int(joints[9][1])), int(bboxRadius2), (0, 0, 0), -1)
+    bboxRadius3 = bboxRadius * 0.8 + 1
+    cv2.circle(mask, (int(joints[4][0]), int(joints[4][1])), int(bboxRadius3), (0, 0, 0), -1)
+    cv2.circle(mask, (int(joints[8][0]), int(joints[8][1])), int(bboxRadius3), (0, 0, 0), -1)
+    cv2.circle(mask, (int(joints[12][0]), int(joints[12][1])), int(bboxRadius3), (0, 0, 0), -1)
+    cv2.circle(mask, (int(joints[16][0]), int(joints[16][1])), int(bboxRadius3), (0, 0, 0), -1)
+    cv2.circle(mask, (int(joints[20][0]), int(joints[20][1])), int(bboxRadius3), (0, 0, 0), -1)
 
-    # Find all contours in the mask
-    contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    # 在遮罩中找到所有輪廓
+    contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Return the original mask if no contours are found
+    # 如果找不到任何輪廓，則返回原始遮罩
     if not contours:
         return original_mask
 
-    # Select the contour with the largest area
+    # 選擇面積最大的輪廓
     largest_contour = max(contours, key=cv2.contourArea)
 
-    # Create a binary mask for the largest contour
-    largest_mask1 = np.zeros_like(original_mask)
-    largest_mask2 = np.zeros_like(original_mask)
+    # 從原始遮罩中減去最大的輪廓
+    result = original_mask.copy()
+    cv2.drawContours(result, [largest_contour], -1, -1, -1)
+    cv2.drawContours(result, [largest_contour], -1, (127, 127, 127), -1)
 
-    cv2.fillPoly(largest_mask1, [largest_contour], (255, 255, 255))
-    cv2.fillPoly(largest_mask2, [largest_contour], (127, 127, 127))
-
-    # Subtract the largest contour from the original mask
-    result1 = original_mask - largest_mask1
-    result2 = result1 + largest_mask2
-
-    return result2
+    return result
 
 
 def save_mask_image(mask_image, yaml_data):
     """
-    Map the values in the input mask image based on the hand type specified in the annotation data.
-    :param mask_image: Input mask image.
-    :param yaml_data: Dictionary containing the annotation data in YAML format. The structure of the dictionary
-                      should follow the format specified in the YAML file.
-    :return: Mapped mask image.
+    根據注釋資料中指定的手部類型，對輸入的遮罩影像進行值映射。
+    :param mask_image: 輸入的遮罩影像。
+    :param yaml_data: 包含 YAML 格式注釋資料的字典。字典的結構應遵循 YAML 檔案中指定的格式。
+
+    :return: 映射後的遮罩影像。
     """
-    # Get the hand type from the annotation data
+    # 從注釋資料中獲取手部類型
     hand_type = yaml_data["Annotation"]["HandType"]
-    # Map the values of the mask based on the hand type
+    # 根據手部類型映射遮罩值
     mapping = {1: {225: 1, 127: 2}, 3: {255: 3, 127: 4}}[hand_type]
-    # Create an array with the same size as the input mask image and fill it with zeros
+    # 創建一個與輸入遮罩影像大小相同的數組並用零填充
     unit_mask = np.zeros_like(mask_image)
-    # Iterate over the values and mapped values in the mapping dictionary
+    # 迭代 mapping 字典中的值與映射值
     for value, mapped_value in mapping.items():
-        # Replace the values in the unit mask that match the current value in the mapping dictionary
+        # 將單位遮罩中與當前映射字典中的值相同的值替換為映射值
         unit_mask[mask_image == value] = mapped_value
-    # Return the resulting unit mask
+    # 返回生成的單位遮罩
     return unit_mask
 
 
