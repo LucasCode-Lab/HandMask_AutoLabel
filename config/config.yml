@@ -34,11 +34,14 @@ Annotation:
   "width": 640,
   "height": 400
 
-contrast :
-  alpha: 2
-binarize: 55
-erosion:
-  kernel: 3
-  iter: 1
-medianBlur:
-  kernel: 5
+image_filter:
+  contrast :
+    alpha: 2
+    beta: 0
+  binarize:
+    threshold: 47
+  erosion:
+    kernel: 3
+    iter: 1
+  medianBlur:
+    kernel: 5
