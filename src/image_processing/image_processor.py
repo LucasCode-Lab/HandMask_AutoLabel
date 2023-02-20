@@ -63,8 +63,8 @@ def process_images(yaml_data, image_files, dir_map):
     log_default_morphologyEx = 'morphologyEx' in yaml_data["image_filter"]
     logger.info("morphologyEx is open" if log_default_morphologyEx else "morphologyEx is close")
 
-    log_default_medianBlur = 'medianBlur' in yaml_data["image_filter"]
-    logger.info("medianBlur is open" if log_default_medianBlur else "medianBlur is close")
+    log_default_medianBlur = 'GaussianBlur' in yaml_data["image_filter"]
+    logger.info("GaussianBlur is open" if log_default_medianBlur else "GaussianBlur is close")
 
     for index, filename in enumerate(image_files):
         # 判斷是否為jpg或png影像
@@ -100,14 +100,15 @@ def process_images(yaml_data, image_files, dir_map):
                 # 進行腐蝕膨脹運算。
                 if log_default_morphologyEx:
                     kernel_size = yaml_data["image_filter"]['morphologyEx'].get('kernel', 3)
-                    image = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel=(kernel_size, kernel_size))
+                    image = cv2.erode(image, (kernel_size, kernel_size), iterations=5)
+                    # image = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel=(kernel_size, kernel_size))
                 else:
                     pass
 
 
                 # 對輪廓邊緣進行模糊化
                 if log_default_medianBlur:
-                    kernel_size = yaml_data["image_filter"]['medianBlur'].get('kernel', 5)
+                    kernel_size = yaml_data["image_filter"]['GaussianBlur'].get('kernel', 5)
                     # image = cv2.medianBlur(image, kernel_size)
                     image = cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
                 else:
