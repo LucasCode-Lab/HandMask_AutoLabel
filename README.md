@@ -7,27 +7,27 @@ A HandMask Autolabel Tool.
 ## Annotation 
 [Hand_mask.json](annotations/sample.json)
 ### Info
-| Item         | Value                    | Data_Type |
-|--------------|--------------------------|-----------|
-| description  | "CRI 2023 Hand Datasets" | str       |
-| version      | "1.0.0"                  | str       |
-| date         | "2023-01-30"             | str       |
-| organization | "Coretronic_CRI"         | str       |
+| Item         | Value                                                  | Data_Type |
+|--------------|--------------------------------------------------------|-----------|
+| description  | "CRI 2023 Hand Datasets"                               | str       |
+| version      | "1.0.0"                                                | str       |
+| date         | "2023-01-30"                                           | str       |
+| organization | "Coretronic Reality Inc. AR/MR AI Technology Division" | str       |
 ***
 ### images
-| Item          | Value                                                                    | Data_Type |
-|---------------|--------------------------------------------------------------------------|-----------|
-| image_path    | "./images/person/Gid/fid.png"                                            | str       |
-| id            | 123                                                                      | int       |
- | frame_id      | 123                                                                      | int       |
-| camera        | id (Camera category)<br/> retify (bool)<br/>width (int)<br/>height (int) |        |
+| Item       | Value                                                                    | Data_Type |
+|------------|--------------------------------------------------------------------------|-----------|
+| image_path | "output/images/Person/Color/Gid/Angle/handtype/RawImages/fid.png"        | str       |
+| id         | 123                                                                      | int       |
+ | fid        | 123                                                                      | int       |
+| camera     | id (Camera category)<br/> retify (bool)<br/>width (int)<br/>height (int) |           |
 ***
 ### Mask
-| Item      | Value                       | Data_Type |
-|-----------|-----------------------------|-----------|
-| mask_path | "./mask/person/Gid/fid.png" | str       |
-| id        | 123                         | int       |
-| frame_id  | 123                         | int       |
+| Item      | Value                                                           | Data_Type |
+|-----------|-----------------------------------------------------------------|-----------|
+| mask_path | "output/mask/Person/Color/Gid/Angle/handtype/RawImages/fid.npy" | str       |
+| id        | 123                                                             | int       |
+| fid       | 123                                                             | int       |
 ***
 ### camera
 | Item       | Value                                                                                   | Data_Type |
@@ -38,20 +38,25 @@ A HandMask Autolabel Tool.
 | distortion | -0.020306250909190218, 0.056496479357930875, -0.06768354885591037, 0.036626224288176815 | float     |
 ***
 ### annotations
-| Item                   | Value                      | Data_Type |
-|------------------------|----------------------------|-----------|
-| id                     | 123                        | int       |
-| image_id               | 123                        | int       |
-| mask_id                | 123                        | int       |
-| frame_id               | 1                          | int       |
-| left_hand_accessories  | False                      | bool      |
-| right_hand_accessories | False                      | bool      |
-| left_arm_accessories   | False                      | bool      |
-| right_arm_accessories  | False                      | bool      |
-| mask_object            | category_id<br/>gesture_id |           |
+| Item          | Value                  |       | Data_Type |
+|---------------|------------------------|-------|-----------|
+| id            | 123                    |       | int       |
+| image_id      | 123                    |       | int       |
+| mask_id       | 123                    |       | int       |
+| categories    | []                     |       | list      |
+|               | HandCategoriesId       | False | bool      |
+|               | GestureCategoriesId    | False | bool      |
+|               | AngleCategoriesId      | False | bool      |
+| accessories   | {}                     |       | list      |
+|               | left_hand_accessories  | False | bool      |
+|               | right_hand_accessories | False | bool      |
+|               | left_arm_accessories   | False | bool      |
+|               | right_arm_accessories  | False | bool      |
+| user          | Lucas                  |       | str       |
+| sleeve        | White                  |       | str       |
 
 ***
-### categories
+### categories - HandCategoriesId
 | Category   | ID  | Intensity |
 |------------|-----|-----------|
 | background | 0   | 0         |
@@ -60,37 +65,31 @@ A HandMask Autolabel Tool.
 | Right_hand | 3   | 3         |
 | Right_arm  | 4   | 4         |
 ***
-### Gesture_Categories (to be edited！！)
-| Category | ID  | 
-|----------|-----|
-| 零        | 0   |
-| 一        | 1   |
-| 二        | 2   |
-| 三        | 3   |
-| 四        | 4   |
-| 五        | 5   |
-| ya       | 6   |
-| 雞爪       | 7   |
-| 中指       | 8   |
-| 無名指      | 9   |
-| 小指       | 10  |
-| 姆指       | 11  |
-| ok       | 12  |
-| pinch    | 13  |
-
+### categories - GestureCategoriesId 
+| Category  | ID   | 
+|-----------|------|
+| 零         | 0    |
+| 一         | 1    |
+| 二         | 2    |
+| 三         | 3    |
+| 四         | 4    |
+| 五         | 5    |
+| ya        | 6    |
+| 雞爪        | 7    |
+| 中指        | 8    |
+| 無名指       | 9    |
+| 小指        | 10   |
+| 姆指        | 11   |
+| ok        | 12   |
+| pinch     | 13   |
 ***
-### Position_Categories
-| Category      | ID     | 
-|---------------|--------|
-| left_up       | 0      | 
-| middle_up     | 1      | 
-| right_up      | 2      | 
-| middle_left   | 3      | 
-| middle        | 5      | 
-| middle_right  | 6      | 
-| down_left     | 7      | 
-| down_middle   | 8      | 
-| down_right    | 8      | 
+### categories - AngleCategoriesId 
+| Category | ID   | 
+|----------|------|
+| 手背       | 0    |
+| 側面       | 1    |
+| 手掌       | 2    |
+
 ***
 #### stop the build if there are Python syntax errors or undefined names
 >flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics

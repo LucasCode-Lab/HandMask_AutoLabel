@@ -262,5 +262,3 @@ def save_mask_image(mask_image, yaml_data):
         unit_mask[mask_image == value] = mapped_value
     # 返回生成的單位遮罩
     return unit_mask
-
-

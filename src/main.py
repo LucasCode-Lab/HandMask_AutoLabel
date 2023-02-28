@@ -7,8 +7,6 @@ from utils.logger import configure_logging
 from image_processing.image_processor import (process_and_save_images,
                                               show_images)
 from autolabel.hand_detect import (detect_joints,
-                                   cal_angle_rotatematrix,
-                                   rotate_points,
                                    createBoundingBox,
                                    extract_largest_contour_mask,
                                    save_mask_image)

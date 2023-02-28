@@ -18,6 +18,8 @@ output_dir:
   hand_arm_mask_dir: "" #"images/{}/{}/{}/HandArmMask/"
   unit_mask_dir: "output/mask/{}/UnitMask"
   merge_vis_dir: "output/vis/{}/res"
+  bin_vis_dir: "output/vis/{}/bin"
+
 
 Annotation:
   HandType : 3  # 左手 ： 1, 右手 ： 3
@@ -33,15 +35,13 @@ Annotation:
   "retify" : false,
   "width": 640,
   "height": 400
-
 image_filter:
   contrast :
     alpha: 2
     beta: 0
   binarize:
-    threshold: 47
-  erosion:
-    kernel: 3
-    iter: 1
-  medianBlur:
+    threshold: 50
+  morphologyEx:
     kernel: 5
+  GaussianBlur:
+    kernel: 7
